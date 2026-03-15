@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-
 import Link from "next/link";
 import Logo from "./logo";
 
@@ -11,9 +10,9 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -24,228 +23,258 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   const initials = session?.user?.name
     ? session.user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : session?.user?.email?.[0]?.toUpperCase() ?? "U";
 
   const navLinks = [
-    { label: "privacy policy", href: "/policy" },
     { label: "how it works", href: "/how-it-works" },
+    { label: "privacy policy", href: "/policy" },
   ];
 
+  const isActive = (href: string) => pathname === href;
+
+  const navLinkClass = (href: string) =>
+    `text-xs px-2.5 py-1.5 rounded-md transition-all tracking-wide font-mono ${
+      isActive(href)
+        ? "text-[#e8ff47]"
+        : "text-neutral-600 hover:text-neutral-300 hover:bg-neutral-900"
+    }`;
+
+  const mobileLinkClass = (href: string) =>
+    `text-xs px-3 py-2.5 rounded-lg transition-all tracking-wide font-mono ${
+      isActive(href)
+        ? "text-[#e8ff47] bg-[#0d0d00]"
+        : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900"
+    }`;
+
   return (
-    <nav style={{
-      height: 52,
-      background: "#080808",
-      borderBottom: "1px solid #141414",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 28px",
-      position: "sticky",
-      top: 0,
-      zIndex: 100,
-      fontFamily: "'DM Mono', monospace",
-    }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
+    <>
+      <nav className="sticky top-0 z-50 bg-[#080808] border-b border-[#141414]">
 
-        .nav-link {
-          font-size: 12px;
-          color: #444;
-          text-decoration: none;
-          letter-spacing: 0.03em;
-          padding: 5px 10px;
-          border-radius: 6px;
-          transition: all 0.15s;
-          cursor: pointer;
-          background: transparent;
-          border: none;
-          font-family: 'DM Mono', monospace;
-        }
-        .nav-link:hover { color: #ccc; background: #111; }
-        .nav-link.active { color: #e8ff47; }
+        {/* Main bar */}
+        <div className="flex items-center justify-between h-[52px] px-5 md:px-7">
 
-        .new-btn {
-          background: #e8ff47;
-          color: #000;
-          border: none;
-          border-radius: 8px;
-          padding: 7px 14px;
-          font-size: 11px;
-          font-weight: 500;
-          font-family: 'DM Mono', monospace;
-          letter-spacing: 0.04em;
-          cursor: pointer;
-          transition: all 0.15s;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .new-btn:hover { background: #d4eb3a; }
-        .new-btn:active { transform: scale(0.97); }
+          {/* Left — logo + desktop links */}
+          <div className="flex items-center gap-1">
+            <Logo size="sm" />
+            <div className="hidden md:flex items-center gap-1 ml-2">
+              {navLinks.map((link) => (
+                <Link key={link.href} href={link.href} className={navLinkClass(link.href)}>
+                  {link.label}
+                </Link>
+              ))}
+              {session && (
+                <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+                  dashboard
+                </Link>
+              )}
+            </div>
+          </div>
 
-        .avatar-btn {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background: #1a1a1a;
-          border: 1px solid #2a2a2a;
-          color: #e8ff47;
-          font-size: 11px;
-          font-weight: 500;
-          font-family: 'DM Mono', monospace;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.15s;
-          letter-spacing: 0.05em;
-        }
-        .avatar-btn:hover { border-color: #e8ff47; background: #1e1e1a; }
+          {/* Right — actions */}
+          <div className="flex items-center gap-2">
 
-        .dropdown {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          background: #0f0f0f;
-          border: 1px solid #1e1e1e;
-          border-radius: 12px;
-          min-width: 200px;
-          overflow: hidden;
-          animation: dropIn 0.15s ease forwards;
-        }
-        @keyframes dropIn {
-          from { opacity: 0; transform: translateY(-6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
+            {session ? (
+              <>
+                {/* New page button — hidden on small screens */}
+                <button
+                  onClick={() => router.push("/")}
+                  className="hidden sm:flex items-center gap-1.5 bg-[#e8ff47] hover:bg-[#d4eb3a]
+                             active:scale-95 text-black text-[11px] font-medium font-mono
+                             tracking-wider px-3.5 py-[7px] rounded-lg transition-all cursor-pointer"
+                >
+                  <span className="text-sm leading-none">+</span>
+                  new page
+                </button>
 
-        .dropdown-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 14px;
-          font-size: 12px;
-          color: #888;
-          cursor: pointer;
-          transition: all 0.1s;
-          border: none;
-          background: transparent;
-          width: 100%;
-          text-align: left;
-          font-family: 'DM Mono', monospace;
-          letter-spacing: 0.02em;
-          text-decoration: none;
-        }
-        .dropdown-item:hover { background: #161616; color: #ccc; }
-        .dropdown-item.danger:hover { background: #1a0a0a; color: #ff6b6b; }
-        .dropdown-divider {
-          height: 1px;
-          background: #1a1a1a;
-          margin: 4px 0;
-        }
-      `}</style>
+                {/* Avatar + dropdown */}
+                <div ref={dropdownRef} className="relative">
+                  <button
+                    onClick={() => setDropdownOpen((v) => !v)}
+                    className="w-[30px] h-[30px] rounded-full bg-neutral-900 border border-neutral-800
+                               hover:border-[#e8ff47] text-[#e8ff47] text-[11px] font-medium font-mono
+                               flex items-center justify-center transition-all tracking-wider cursor-pointer"
+                    title={session?.user?.email ?? "Account"}
+                  >
+                    {initials}
+                  </button>
 
-      {/* Left — logo + nav links */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Logo size="sm" />
+                  {dropdownOpen && (
+                    <div className="absolute top-[calc(100%+8px)] right-0 w-52 bg-[#0f0f0f]
+                                    border border-neutral-800 rounded-xl overflow-hidden shadow-2xl
+                                    animate-in fade-in slide-in-from-top-1 duration-150">
+                      {/* User info */}
+                      <div className="px-3.5 py-3 border-b border-neutral-800">
+                        <p className="text-xs text-neutral-300 truncate mb-0.5 font-mono">
+                          {session?.user?.name ?? "User"}
+                        </p>
+                        <p className="text-[11px] text-neutral-600 truncate font-mono">
+                          {session?.user?.email}
+                        </p>
+                      </div>
 
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`nav-link${pathname === link.href ? " active" : ""}`}
-          >
-            {link.label}
-          </Link>
-        ))}
-        {session && (
-          <Link 
-            href="/dashboard"
-            className={`nav-link${pathname === "dashboard" ? " active" : ""}`}
-          >
-            dashboard
-          </Link>
-        )}
-      </div>
+                      <div className="py-1">
+                        <Link href="/dashboard" className="dd-item">
+                          <span className="text-neutral-600 text-xs">◈</span> dashboard
+                        </Link>
+                        <Link href="/" className="dd-item">
+                          <span className="text-neutral-600 text-xs">+</span> new page
+                        </Link>
+                        <Link href="/policy" className="dd-item">
+                          <span className="text-neutral-600 text-xs">⚖</span> privacy policy
+                        </Link>
+                      </div>
 
-      {/* Right — new page + avatar */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        {session ? (
-          <>
-            <button className="new-btn" onClick={() => router.push("/")}>
-              <span style={{ fontSize: 14, lineHeight: 1 }}>+</span>
-              new page
+                      <div className="h-px bg-neutral-800" />
+
+                      <div className="py-1">
+                        <button
+                          onClick={() => signOut({ callbackUrl: "/login" })}
+                          className="dd-item w-full text-left hover:!bg-red-950/40 hover:!text-red-400"
+                        >
+                          <span className="text-xs">→</span> sign out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link href="/login" className={navLinkClass("/login")}>
+                  sign in
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-[#e8ff47] hover:bg-[#d4eb3a] text-black text-[11px]
+                             font-medium font-mono tracking-wider px-3.5 py-[7px]
+                             rounded-lg transition-all"
+                >
+                  get started
+                </Link>
+              </div>
+            )}
+
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200 origin-center
+                ${mobileOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
+              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200
+                ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
+              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200 origin-center
+                ${mobileOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
             </button>
+          </div>
+        </div>
 
-            {/* Avatar dropdown */}
-            <div ref={dropdownRef} style={{ position: "relative" }}>
-              <button
-                className="avatar-btn"
-                onClick={() => setDropdownOpen((v) => !v)}
-                title={session?.user?.email ?? "Account"}
-              >
-                {initials}
-              </button>
+        {/* Mobile drawer */}
+        {mobileOpen && (
+          <div className="md:hidden border-t border-neutral-800/50 bg-[#080808]
+                          px-4 py-3 flex flex-col gap-1
+                          animate-in fade-in slide-in-from-top-2 duration-150">
 
-              {dropdownOpen && (
-                <div className="dropdown">
-                  {/* User info */}
-                  <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid #1a1a1a" }}>
-                    <p style={{ fontSize: 12, color: "#ccc", marginBottom: 2 }}>
+            {/* Nav links */}
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={mobileLinkClass(link.href)}>
+                {link.label}
+              </Link>
+            ))}
+
+            {session ? (
+              <>
+                <Link href="/dashboard" className={mobileLinkClass("/dashboard")}>
+                  dashboard
+                </Link>
+
+                <div className="h-px bg-neutral-800/50 my-1" />
+
+                <button
+                  onClick={() => router.push("/")}
+                  className="flex items-center gap-2 text-xs px-3 py-2.5 rounded-lg font-mono
+                             text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900
+                             transition-all tracking-wide text-left w-full cursor-pointer"
+                >
+                  <span>+</span> new page
+                </button>
+
+                {/* User card */}
+                <div className="flex items-center gap-3 px-3 py-2.5 mt-1
+                                border border-neutral-800/60 rounded-lg">
+                  <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800
+                                  text-[#e8ff47] text-[10px] font-mono flex items-center
+                                  justify-center flex-shrink-0">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-neutral-300 font-mono truncate">
                       {session?.user?.name ?? "User"}
                     </p>
-                    <p style={{
-                      fontSize: 11,
-                      color: "#444",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}>
+                    <p className="text-[11px] text-neutral-600 font-mono truncate">
                       {session?.user?.email}
                     </p>
                   </div>
-
-                  {/* Links */}
-                  <div style={{ padding: "4px 0" }}>
-                    <Link href="/dashboard" className="dropdown-item">
-                      <span>◈</span> dashboard
-                    </Link>
-                    <Link href="/" className="dropdown-item">
-                      <span>+</span> new page
-                    </Link>
-                    <Link href="/policy" className="dropdown-item">
-                      <span>⚖</span> privacy policy
-                    </Link>
-                  </div>
-
-                  <div className="dropdown-divider" />
-
-                  <div style={{ padding: "4px 0" }}>
-                    <button
-                      className="dropdown-item danger"
-                      onClick={() => signOut({ callbackUrl: "/login" })}
-                    >
-                      <span>→</span> sign out
-                    </button>
-                  </div>
                 </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div style={{ display: "flex", gap: 8 }}>
-            <Link href="/login" className="nav-link">sign in</Link>
-            <Link 
-              href="/register" 
-              className="new-btn"
-              style={{ padding: "7px 16px" }}
-            >
-              get started
-            </Link>
+
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="text-xs px-3 py-2.5 rounded-lg font-mono text-neutral-600
+                             hover:text-red-400 hover:bg-red-950/20 transition-all
+                             tracking-wide text-left w-full cursor-pointer"
+                >
+                  → sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="h-px bg-neutral-800/50 my-1" />
+                <Link href="/login" className={mobileLinkClass("/login")}>
+                  sign in
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-xs px-3 py-2.5 rounded-lg bg-[#e8ff47] text-black
+                             font-medium font-mono tracking-wider text-center transition-all"
+                >
+                  get started
+                </Link>
+              </>
+            )}
           </div>
         )}
-      </div>
-    </nav>
+      </nav>
+
+      {/* Dropdown item base style — too complex for pure Tailwind inline */}
+      <style>{`
+        .dd-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 14px;
+          font-size: 12px;
+          color: #777;
+          transition: all 0.1s;
+          background: transparent;
+          border: none;
+          font-family: 'DM Mono', monospace;
+          letter-spacing: 0.02em;
+          text-decoration: none;
+          cursor: pointer;
+          width: 100%;
+        }
+        .dd-item:hover {
+          background: #161616;
+          color: #ccc;
+        }
+      `}</style>
+    </>
   );
 }
