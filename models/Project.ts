@@ -30,7 +30,7 @@ const ProjectSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: "pages",
+    collection: "projects",
   }
 );
 
