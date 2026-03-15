@@ -15,6 +15,9 @@ export async function GET() {
     }
 
     await dbConnect();
+    // const projects = await Project.find({ createdAt: -1 }); 
+    // const projects = await Project.find({}).sort({ createdAt: -1 });
+
     const projects = await Project.find({ userId }).sort({ createdAt: -1 });
     
     return NextResponse.json(projects);
