@@ -29,8 +29,8 @@ function Field({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm
-                   text-neutral-200 outline-none focus:border-yellow-300/50
+        className="bg-neutral-900 border border-neutral-800 rounded-lg px-4 py-3 text-sm
+                   text-neutral-200 outline-none focus:border-[#e8ff47]
                    transition-colors placeholder:text-neutral-700 w-full"
       />
     </div>
@@ -50,6 +50,7 @@ function NewPageContent() {
 
   const [prompt] = useState(promptFromUrl);
   const [fields, setFields] = useState<DynamicField[]>([]);
+  const [step,setSteps] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [analyzing, setAnalyzing] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -123,7 +124,17 @@ function NewPageContent() {
       setLoading(false);
     }
   };
-
+  const field = fields[step];
+  const previousStep = () => {
+    if (step > 0) {
+      setSteps(step - 1);
+    }
+  };
+  const nextStep = () => {
+    if (step < fields.length - 1) {
+      setSteps(step + 1);
+    }
+  };
   if (analyzing) {
     return (
       <main className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 text-neutral-100 px-6">
@@ -137,7 +148,7 @@ function NewPageContent() {
   if (loading) {
     return (
       <main className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 text-neutral-100 px-6">
-        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-yellow-300 w-8 h-8 mb-4" />
+        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-[#e8ff47] w-8 h-8 mb-4" />
         <p className="font-semibold text-lg">Forging your page...</p>
         <p className="text-neutral-500 text-sm mt-1">This takes about 10-15 seconds.</p>
       </main>
@@ -170,9 +181,26 @@ function NewPageContent() {
             <p className="text-xs text-neutral-300 line-clamp-2">{prompt}</p>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {fields.map((field) => (
+          {fields.length > 0 && field && (
+            <div className="space-y-6">
+              {/* Step indicator */}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                  Step {step + 1} of {fields.length}
+                </span>
+                <div className="flex gap-1">
+                  {fields.map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`h-1 w-4 rounded-full transition-all duration-300 ${
+                        i === step ? "bg-[#e8ff47] w-8" : "bg-neutral-800"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1">
                 <Field
                   key={field.id}
                   label={field.label}
@@ -180,24 +208,54 @@ function NewPageContent() {
                   value={answers[field.id] || ""}
                   onChange={(v) => updateAnswer(field.id, v)}
                 />
-              ))}
-            </div>
-          </div>
+              </div>
 
-          <div className="flex gap-3 mt-8">
+              <div className="flex items-center gap-3 pt-2">
+                {step > 0 && (
+                  <button 
+                    onClick={previousStep}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-800 text-neutral-400 
+                               font-medium hover:bg-neutral-800 hover:text-neutral-200 transition-all 
+                               text-sm flex items-center justify-center gap-2"
+                  >
+                    Back
+                  </button>
+                )}
+                <button 
+                  onClick={step === fields.length - 1 ? generate : nextStep}
+                  className={`flex-[2] py-2.5 rounded-xl font-bold transition-all text-sm
+                             shadow-lg flex items-center justify-center gap-2
+                             ${step === fields.length - 1 
+                               ? "bg-[#e8ff47] text-black hover:bg-[#e8ff47]/50 shadow-[#e8ff47]/10" 
+                               : "bg-neutral-100 text-black hover:bg-white"}`}
+                >
+                  {step === fields.length - 1 
+                    ? "Generate" 
+                    : (answers[field.id]?.trim() ? "Next" : "Skip")}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!analyzing && fields.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-neutral-500 text-sm">No additional info needed. Ready to generate!</p>
+              <button
+                onClick={generate}
+                className="mt-4 px-8 py-2.5 bg-[#e8ff47] text-black font-bold rounded-xl
+                           hover:bg-[#e8ff47]/50 transition-colors text-sm shadow-lg shadow-[#e8ff47]/10"
+              >
+                Generate
+              </button>
+            </div>
+          )}
+
+          <div className="flex justify-center mt-8">
             <button
-              onClick={() => router.push("/")}
-              className="px-6 py-2.5 rounded-xl border border-neutral-700 text-neutral-300 
-                         font-medium hover:bg-neutral-800 transition-colors text-sm"
+              onClick={() => router.push("/dashboard")}
+              className="text-neutral-500 text-xs font-medium hover:text-neutral-300 transition-colors"
             >
-              Cancel
-            </button>
-            <button
-              onClick={generate}
-              className="flex-1 bg-yellow-300 text-black font-bold py-2.5 rounded-xl
-                         hover:bg-yellow-200 transition-colors text-sm shadow-lg shadow-yellow-300/10"
-            >
-              Generate Page →
+              Cancel and go back
             </button>
           </div>
         </div>
