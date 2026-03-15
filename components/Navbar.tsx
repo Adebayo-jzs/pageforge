@@ -3,7 +3,11 @@ import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import GenerateForm from "./generate-form";
 import Logo from "./logo";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -11,6 +15,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -101,7 +106,17 @@ export default function Navbar() {
                                flex items-center justify-center transition-all tracking-wider cursor-pointer"
                     title={session?.user?.email ?? "Account"}
                   >
-                    {initials}
+                    {session?.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        width={30}
+                        height={30}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      initials
+                    )}
                   </button>
 
                   {dropdownOpen && (
@@ -122,9 +137,9 @@ export default function Navbar() {
                         <Link href="/dashboard" className="dd-item">
                           <span className="text-neutral-600 text-xs">◈</span> dashboard
                         </Link>
-                        <Link href="/" className="dd-item">
-                          <span className="text-neutral-600 text-xs">+</span> new page
-                        </Link>
+                        <button onClick={() => setIsModalOpen(true)} className="dd-item flex items-center gap-2">
+                          <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" /> new page
+                        </button>
                         <Link href="/policy" className="dd-item">
                           <span className="text-neutral-600 text-xs">⚖</span> privacy policy
                         </Link>
@@ -212,7 +227,17 @@ export default function Navbar() {
                   <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800
                                   text-[#e8ff47] text-[10px] font-mono flex items-center
                                   justify-center flex-shrink-0">
-                    {initials}
+                    {session?.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs text-neutral-300 font-mono truncate">
@@ -252,6 +277,28 @@ export default function Navbar() {
         )}
       </nav>
 
+        {isModalOpen && (
+          <div 
+            className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsModalOpen(false);
+            }}
+          >
+            <div className="w-full max-w-2xl bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-8 relative shadow-2xl animate-in zoom-in-95 duration-200">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors cursor-pointer text-2xl"
+              >
+                ×
+              </button>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-2 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>Create New Project</h2>
+                <p className="text-sm text-neutral-400">Describe what you want to build and PageForge will generate it for you.</p>
+              </div>
+              <GenerateForm />
+            </div>
+          </div>
+        )}
       {/* Dropdown item base style — too complex for pure Tailwind inline */}
       <style>{`
         .dd-item {
