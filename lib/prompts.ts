@@ -41,4 +41,8 @@ OUTPUT CONSTRAINTS — THIS IS CRITICAL:
 - If you must choose between more sections or complete output, ALWAYS choose complete output.
 - Target under 500 lines of code total.
 
+BUSINESS DETAILS:
+- If the prompt includes business/contact details (name, email, phone, social links), use them in the navbar brand, footer contact section, and CTA areas.
+- Use the brand name as the logo text. Include social links as icons in the footer.
+
 RETURN ONLY raw HTML starting with <!DOCTYPE html> and ending with </html>. No markdown, no explanation, no backticks.`;
