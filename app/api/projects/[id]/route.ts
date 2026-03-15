@@ -71,3 +71,35 @@ export async function PUT(
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    if (!id || id.length !== 24) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    }
+
+    await dbConnect();
+    const project = await Project.findOneAndDelete({ _id: id, userId });
+
+    if (!project) {
+      return NextResponse.json({ error: "Project not found or unauthorized" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: "Project deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
