@@ -77,11 +77,15 @@ async function savePage(doc: {
 }
 
 export async function POST(req: NextRequest) {
+  const start = Date.now();
+  console.log("[/api/generate] Request received");
+
   // Check session first to avoid expensive AI calls for unauthorized users
   const session = await auth();
   const userId = session?.user?.id;
 
   if (!userId) {
+    console.warn("[/api/generate] Unauthorized access attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -97,15 +101,21 @@ export async function POST(req: NextRequest) {
   let provider: string;
 
   try {
+    console.log("[/api/generate] Calling Gemini...");
+    const geminiStart = Date.now();
     html = await tryGemini(prompt);
     provider = "gemini";
+    console.log(`[/api/generate] Gemini succeeded in ${Date.now() - geminiStart}ms`);
   } catch (geminiErr) {
-    console.warn("Gemini failed, trying OpenAI:", (geminiErr as Error).message);
+    console.warn("[/api/generate] Gemini failed, trying OpenAI:", (geminiErr as Error).message);
     try {
+      console.log("[/api/generate] Calling OpenAI...");
+      const openaiStart = Date.now();
       html = await tryOpenAI(prompt);
       provider = "openai";
+      console.log(`[/api/generate] OpenAI succeeded in ${Date.now() - openaiStart}ms`);
     } catch (openaiErr) {
-      console.error("OpenAI also failed:", (openaiErr as Error).message);
+      console.error("[/api/generate] OpenAI also failed:", (openaiErr as Error).message);
       return NextResponse.json(
         { error: "All providers failed. Check your API keys." },
         { status: 502 }
@@ -114,7 +124,11 @@ export async function POST(req: NextRequest) {
   }
 
   // Save to MongoDB
+  console.log("[/api/generate] Saving to MongoDB...");
+  const saveStart = Date.now();
   const id = await savePage({ userId, prompt, html, provider, ip });
+  console.log(`[/api/generate] Saved in ${Date.now() - saveStart}ms`);
 
+  console.log(`[/api/generate] Total duration: ${Date.now() - start}ms`);
   return NextResponse.json({ html, provider, id });
 }
