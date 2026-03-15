@@ -1,24 +1,58 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-const uri = process.env.MONGO_URI!;
-const options = {};
+const MONGO_URI = process.env.MONGO_URI!;
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
-// Reuse connection in dev (Next.js hot reload creates new instances)
-if (process.env.NODE_ENV === "development") {
-  const globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect();
-  }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+if (!MONGO_URI) {
+  throw new Error("Please define the MONGO_URI environment variable inside .env.local");
 }
 
-export default clientPromise;
+declare global {
+  var mongoose: {
+    conn: typeof import("mongoose") | null;
+    promise: Promise<typeof import("mongoose")> | null;
+  };
+}
+
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+    };
+
+    console.log("Connecting to MongoDB...");
+    const start = Date.now();
+    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
+      console.log(`MongoDB connected in ${Date.now() - start}ms`);
+      return mongoose;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error("MongoDB connection error:", e);
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+export default dbConnect;
