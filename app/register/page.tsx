@@ -119,6 +119,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -256,6 +257,7 @@ export default function RegisterPage() {
         <div className="grid-bg" />
 
         <div style={{ position: "relative" }}>
+          <Link href="/">
           <span style={{
             fontFamily: "'Bebas Neue', sans-serif",
             fontSize: 28,
@@ -264,6 +266,7 @@ export default function RegisterPage() {
           }}>
             Page<span style={{ color: "#e8ff47" }}>Forge</span>
           </span>
+          </Link>
         </div>
 
         <div style={{ position: "relative", maxWidth: 400 }}>
@@ -443,14 +446,14 @@ export default function RegisterPage() {
         </form>
 
         <div className="fade-in d6" style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <a
+          <Link
             href="/login"
             style={{ fontSize: 12, color: "#444", textDecoration: "none", transition: "color 0.15s" }}
             onMouseOver={(e) => (e.currentTarget.style.color = "#e8ff47")}
             onMouseOut={(e) => (e.currentTarget.style.color = "#444")}
           >
             Have an account? Sign in →
-          </a>
+          </Link>
           <span style={{ fontSize: 11, color: "#2a2a2a" }}>v1.0</span>
         </div>
       </div>

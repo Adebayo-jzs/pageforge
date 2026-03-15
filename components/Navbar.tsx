@@ -3,6 +3,9 @@ import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 
+import Link from "next/link";
+import Logo from "./logo";
+
 export default function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -26,7 +29,8 @@ export default function Navbar() {
     : session?.user?.email?.[0]?.toUpperCase() ?? "U";
 
   const navLinks = [
-    { label: "dashboard", href: "/dashboard" },
+    { label: "privacy policy", href: "/policy" },
+    { label: "how it works", href: "/how-it-works" },
   ];
 
   return (
@@ -143,97 +147,104 @@ export default function Navbar() {
       `}</style>
 
       {/* Left — logo + nav links */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <button
-          onClick={() => router.push("/")}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "0 12px 0 0",
-            marginRight: 8,
-            borderRight: "1px solid #1a1a1a",
-          }}
-        >
-          <span style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 20,
-            letterSpacing: "0.05em",
-            color: "#fff",
-          }}>
-            Page<span style={{ color: "#e8ff47" }}>Forge</span>
-          </span>
-        </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Logo size="sm" />
 
         {navLinks.map((link) => (
-          <a
+          <Link
             key={link.href}
             href={link.href}
             className={`nav-link${pathname === link.href ? " active" : ""}`}
           >
             {link.label}
-          </a>
+          </Link>
         ))}
+        {session && (
+          <Link 
+            href="/dashboard"
+            className={`nav-link${pathname === "dashboard" ? " active" : ""}`}
+          >
+            dashboard
+          </Link>
+        )}
       </div>
 
       {/* Right — new page + avatar */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <button className="new-btn" onClick={() => router.push("/")}>
-          <span style={{ fontSize: 14, lineHeight: 1 }}>+</span>
-          new page
-        </button>
+        {session ? (
+          <>
+            <button className="new-btn" onClick={() => router.push("/")}>
+              <span style={{ fontSize: 14, lineHeight: 1 }}>+</span>
+              new page
+            </button>
 
-        {/* Avatar dropdown */}
-        <div ref={dropdownRef} style={{ position: "relative" }}>
-          <button
-            className="avatar-btn"
-            onClick={() => setDropdownOpen((v) => !v)}
-            title={session?.user?.email ?? "Account"}
-          >
-            {initials}
-          </button>
+            {/* Avatar dropdown */}
+            <div ref={dropdownRef} style={{ position: "relative" }}>
+              <button
+                className="avatar-btn"
+                onClick={() => setDropdownOpen((v) => !v)}
+                title={session?.user?.email ?? "Account"}
+              >
+                {initials}
+              </button>
 
-          {dropdownOpen && (
-            <div className="dropdown">
-              {/* User info */}
-              <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid #1a1a1a" }}>
-                <p style={{ fontSize: 12, color: "#ccc", marginBottom: 2 }}>
-                  {session?.user?.name ?? "User"}
-                </p>
-                <p style={{
-                  fontSize: 11,
-                  color: "#444",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}>
-                  {session?.user?.email}
-                </p>
-              </div>
+              {dropdownOpen && (
+                <div className="dropdown">
+                  {/* User info */}
+                  <div style={{ padding: "12px 14px 10px", borderBottom: "1px solid #1a1a1a" }}>
+                    <p style={{ fontSize: 12, color: "#ccc", marginBottom: 2 }}>
+                      {session?.user?.name ?? "User"}
+                    </p>
+                    <p style={{
+                      fontSize: 11,
+                      color: "#444",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {session?.user?.email}
+                    </p>
+                  </div>
 
-              {/* Links */}
-              <div style={{ padding: "4px 0" }}>
-                <a href="/dashboard" className="dropdown-item">
-                  <span>◈</span> dashboard
-                </a>
-                <a href="/" className="dropdown-item">
-                  <span>+</span> new page
-                </a>
-              </div>
+                  {/* Links */}
+                  <div style={{ padding: "4px 0" }}>
+                    <Link href="/dashboard" className="dropdown-item">
+                      <span>◈</span> dashboard
+                    </Link>
+                    <Link href="/" className="dropdown-item">
+                      <span>+</span> new page
+                    </Link>
+                    <Link href="/policy" className="dropdown-item">
+                      <span>⚖</span> privacy policy
+                    </Link>
+                  </div>
 
-              <div className="dropdown-divider" />
+                  <div className="dropdown-divider" />
 
-              <div style={{ padding: "4px 0" }}>
-                <button
-                  className="dropdown-item danger"
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                >
-                  <span>→</span> sign out
-                </button>
-              </div>
+                  <div style={{ padding: "4px 0" }}>
+                    <button
+                      className="dropdown-item danger"
+                      onClick={() => signOut({ callbackUrl: "/login" })}
+                    >
+                      <span>→</span> sign out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link href="/login" className="nav-link">sign in</Link>
+            <Link 
+              href="/register" 
+              className="new-btn"
+              style={{ padding: "7px 16px" }}
+            >
+              get started
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );

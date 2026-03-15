@@ -121,6 +121,7 @@
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -253,6 +254,7 @@ function LoginForm() {
 
         {/* Logo */}
         <div style={{ position: "relative" }}>
+          <Link href="/">
           <span style={{
             fontFamily: "'Bebas Neue', sans-serif",
             fontSize: 28,
@@ -261,6 +263,7 @@ function LoginForm() {
           }}>
             Page<span style={{ color: "#e8ff47" }}>Forge</span>
           </span>
+          </Link>
         </div>
 
         {/* Center quote */}
@@ -424,12 +427,12 @@ function LoginForm() {
         </form>
 
         <div className="fade-in delay-6" style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <a href="/register" style={{ fontSize: 12, color: "#444", textDecoration: "none", transition: "color 0.15s" }}
+          <Link href="/register" style={{ fontSize: 12, color: "#444", textDecoration: "none", transition: "color 0.15s" }}
             onMouseOver={(e) => (e.currentTarget.style.color = "#e8ff47")}
             onMouseOut={(e) => (e.currentTarget.style.color = "#444")}
           >
             No account? Register →
-          </a>
+          </Link>
           <span style={{ fontSize: 11, color: "#2a2a2a" }}>v1.0</span>
         </div>
       </div>
