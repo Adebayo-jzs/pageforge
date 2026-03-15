@@ -32,10 +32,14 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      // dbName: "pageforge",
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
     };
 
+    console.log("Connecting to MongoDB...");
+    const start = Date.now();
     cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
+      console.log(`MongoDB connected in ${Date.now() - start}ms`);
       return mongoose;
     });
   }
@@ -44,6 +48,7 @@ async function dbConnect() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    console.error("MongoDB connection error:", e);
     throw e;
   }
 
