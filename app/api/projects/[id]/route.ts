@@ -1,25 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import clientPromise from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
+import Project from "@/models/Project";
+import { auth } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
 
     if (!id || id.length !== 24) {
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("pageforge");
-    
-    const project = await db.collection("projects").findOne({
-      _id: new ObjectId(id),
-    });
+    await dbConnect();
+    const project = await Project.findOne({ _id: id, userId });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
@@ -37,24 +40,29 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
     const body = await req.json();
 
     if (!id || id.length !== 24) {
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("pageforge");
-    
-    const result = await db.collection("projects").updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { html: body.html, provider: body.provider, updatedAt: new Date() } }
+    await dbConnect();
+    const project = await Project.findOneAndUpdate(
+      { _id: id, userId },
+      { html: body.html, provider: body.provider },
+      { new: true }
     );
 
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found or unauthorized" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });
