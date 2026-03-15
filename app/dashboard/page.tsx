@@ -2,6 +2,10 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import GenerateForm from "@/components/generate-form";
+import Logo from "@/components/logo";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 type Page = {
   _id: string;
@@ -31,6 +35,7 @@ export default function DashboardPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string>("");
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -77,75 +82,14 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#080808] text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .card { transition: border-color 0.2s, transform 0.2s; }
-        .card:hover { border-color: #e8ff47 !important; transform: translateY(-1px); }
-        .btn { transition: all 0.15s; cursor: pointer; }
-        .btn:hover { opacity: 0.8; }
-        .btn:active { transform: scale(0.97); }
-        .fade-in { animation: fadeIn 0.4s ease forwards; opacity: 0; }
-        @keyframes fadeIn { to { opacity: 1; } }
-        .stagger-1 { animation-delay: 0.05s; }
-        .stagger-2 { animation-delay: 0.1s; }
-        .stagger-3 { animation-delay: 0.15s; }
-        .stagger-4 { animation-delay: 0.2s; }
-        .stagger-5 { animation-delay: 0.25s; }
-        .provider-gemini { color: #888; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
-        .provider-openai { color: #888; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
-        .card-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 20px;
-        }
-        .thumbnail-container {
-          width: 100%;
-          height: 180px;
-          overflow: hidden;
-          position: relative;
-          background: #0d0d0d;
-          border-radius: 12px 12px 0 0;
-          border-bottom: 1px solid #1a1a1a;
-        }
-        .thumbnail-iframe {
-          width: 400%;
-          height: 400%;
-          border: none;
-          transform: scale(0.25);
-          transform-origin: 0 0;
-          pointer-events: none;
-          opacity: 0.8;
-          transition: opacity 0.3s;
-          overflow: hidden !important;
-        }
-        .card:hover .thumbnail-iframe { opacity: 1; }
-        
-        /* Hide all scrollbars (scrollkit) */
-        ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
-        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-      `}</style>
-
+      
+       
       {/* Nav */}
-      <nav style={{
-        borderBottom: "1px solid #1a1a1a",
-        padding: "0 32px",
-        height: 56,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "sticky",
-        top: 0,
-        background: "#080808",
-        zIndex: 50,
+      <nav className="hiddden border-b-1 border-[#1a1a1a] px-8 h-14 flex sticky top-0 z-50 items-center justify-between bg-background" style={{ 
+        padding: "0 32px", 
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <span
-            style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.05em", cursor: "pointer" }}
-            onClick={() => router.push("/")}
-          >
-            Page<span style={{ color: "#e8ff47" }}>Forge</span>
-          </span>
+          <Logo size="sm" />
           <span style={{ color: "#333", fontSize: 12 }}>|</span>
           <span style={{ color: "#555", fontSize: 12 }}>Dashboard</span>
         </div>
@@ -160,27 +104,19 @@ export default function DashboardPage() {
             }}>
               {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
             </div>
-            <span style={{ fontSize: 12, color: "#666" }}>{session?.user?.email}</span>
+            <span style={{ fontSize: 12, color: "#666" }}>{session?.user?.name}</span>
           </div>
           <button
-            className="btn"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            style={{
-              background: "transparent",
-              border: "1px solid #222",
-              borderRadius: 8,
-              padding: "6px 12px",
-              color: "#555",
-              fontSize: 11,
-              fontFamily: "inherit",
-            }}
+            className="btn bg-red-600 text-white px-3 py-2 cursor-pointer rounded-md text-[11px] "
+            onClick={() => signOut({ callbackUrl: "/login" })} 
           >
             Sign out
           </button>
         </div>
       </nav>
-
+      
       <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
+      {/* <div> */}
 
         {/* Left — page list */}
         <div style={{
@@ -206,37 +142,30 @@ export default function DashboardPage() {
                     {loading ? "..." : `${pages.length} generated`}
                 </span>
                 <button
-                    className="btn"
-                    onClick={() => router.push("/")}
-                    style={{
-                        background: "#e8ff47",
-                        color: "#000",
-                        border: "none",
-                        borderRadius: 10,
-                        padding: "10px 20px",
-                        fontSize: 12,
-                        fontWeight: 700,
+                    className="btn text-[#000] border-none rounded-sm px-5 py-2 text-[12px] bg-[#e8ff47] flex gap-2 items-center font-semibold cursor-pointer"
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ 
                         fontFamily: "inherit",
                         letterSpacing: "0.03em",
                     }}
                 >
-                    + New
+                    <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" />New
                 </button>
             </div>
           </div>
 
           {/* Empty state */}
           {!loading && pages.length === 0 && (
-            <div style={{
-              border: "1px dashed #1e1e1e",
-              borderRadius: 16,
-              padding: "64px 32px",
-              textAlign: "center",
-            }}>
+            <div 
+              className="border-1 border-dashed border-[#1e1e1e] rounded-xl px-8 py-16 flex flex-col items-center justify-center"
+             >
+              <div className="text-center mb-4">
+
               <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.3 }}>◈</div>
               <p style={{ color: "#444", fontSize: 14, marginBottom: 8 }}>No pages yet</p>
               <p style={{ color: "#333", fontSize: 12 }}>Generate your first landing page to see it here</p>
-              <button
+              </div>
+              {/* <button
                 className="btn"
                 onClick={() => router.push("/")}
                 style={{
@@ -253,7 +182,8 @@ export default function DashboardPage() {
                 }}
               >
                 Generate a page
-              </button>
+              </button> */}
+              <GenerateForm/>
             </div>
           )}
 
@@ -436,7 +366,32 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Modal Overlay for New Project */}
+        {isModalOpen && (
+          <div 
+            className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsModalOpen(false);
+            }}
+          >
+            <div className="w-full max-w-2xl bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-8 relative shadow-2xl animate-in zoom-in-95 duration-200">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors cursor-pointer text-2xl"
+              >
+                ×
+              </button>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-2 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>Create New Project</h2>
+                <p className="text-sm text-neutral-400">Describe what you want to build and PageForge will generate it for you.</p>
+              </div>
+              <GenerateForm />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+ 
