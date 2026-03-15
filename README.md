@@ -1,167 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EngiDocs: Collaborative Workspace for Remote Engineering Teams</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* General Reset & Base Styles */
-        :root {
-            --primary-blue: #007bff;
-            --secondary-green: #28a745;
-            --dark-text: #333;
-            --light-text: #666;
-            --background-light: #f8f9fa;
-            --background-white: #fff;
-            --border-color: #e0e0e0;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.12);
-        }
+# ⚡ PageForge
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+AI-powered landing page generator — describe your product, get a stunning, production-ready HTML page in seconds.
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            line-height: 1.6;
-            color: var(--dark-text);
-            background-color: var(--background-white);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            opacity: 0; /* Hidden initially for fade-in */
-            animation: fadeIn 0.8s ease-out forwards;
-        }
+PageForge is built with Next.js and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+## Features
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+- 🤖 **AI-Powered Generation** — Describe your product in plain English and get a complete landing page
+- 👁 **Live Preview** — See your generated page rendered in real-time
+- ✏️ **Code Editor** — View, edit, and tweak the generated HTML with line numbers
+- 📋 **Copy & Download** — Copy code to clipboard or download as an HTML file
+- 🔄 **Multi-Provider Fallback** — Gemini first, OpenAI as backup
+- 📱 **Responsive Output** — Generated pages are mobile-friendly out of the box
 
-        /* Typography */
-        h1, h2, h3 {
-            font-weight: 600;
-            line-height: 1.2;
-            margin-bottom: 0.5em;
-        }
+## Tech Stack
 
-        h1 { font-size: 2.8em; }
-        h2 { font-size: 2.2em; }
-        h3 { font-size: 1.6em; }
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **Icons:** HugeIcons
+- **AI:** Google Gemini 2.5 Flash / OpenAI GPT-4o
 
-        p {
-            margin-bottom: 1em;
-            color: var(--light-text);
-        }
+## Getting Started
 
-        a {
-            color: var(--primary-blue);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+### Prerequisites
 
-        a:hover {
-            color: #0056b3; /* Darker blue on hover */
-        }
+- Node.js 18+
+- A Gemini API key ([get one here](https://aistudio.google.com/apikey))
+- Optionally, an OpenAI API key
 
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            border: none;
-        }
+### Setup
 
-        .btn-primary {
-            background-color: var(--primary-blue);
-            color: var(--background-white);
-            box-shadow: 0 4px 15px var(--shadow-medium);
-        }
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/Adebayo-jzs/pageforge.git
+   cd pageforge
+   ```
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px var(--shadow-medium);
-        }
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-            padding: 10px 26px; /* Adjust padding for border */
-        }
+3. Create a `.env.local` file:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here   # optional
+   ```
 
-        .btn-secondary:hover {
-            background-color: var(--primary-blue);
-            color: var(--background-white);
-            transform: translateY(-2px);
-        }
+4. Run the dev server:
+   ```bash
+   npm run dev
+   ```
 
-        /* Navbar */
-        .navbar {
-            position: sticky;
-            top: 0;
-            width: 100%;
-            background-color: var(--background-white);
-            box-shadow: 0 2px 10px var(--shadow-light);
-            padding: 15px 0;
-            z-index: 1000;
-        }
+5. Open [http://localhost:3000](http://localhost:3000)
 
-        .navbar .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+## How It Works
 
-        .navbar-brand {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: var(--primary-blue);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+1. Enter a product description in the sidebar
+2. Click **Generate Landing Page**
+3. The AI creates a complete, self-contained HTML file with:
+   - Sticky navbar, hero section, features grid, testimonials, pricing, CTA, and footer
+   - Custom Google Font, CSS animations, responsive design
+   - Inline SVG icons and gradient accents
+4. Preview the result, edit the code, or download the HTML
 
-        .navbar-brand span {
-            font-size: 1.2em;
-            color: var(--secondary-green);
-        }
+## License
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            font-weight: 500;
-            color: var(--dark-text);
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-blue);
-        }
-
-        .nav-toggle {
-            display: none; /* Hidden on desktop */
-            font-size: 2em;
-            cursor: pointer;
-            color: var(--dark-text);
-        }
-
-        /* Hero Section */
+MIT
