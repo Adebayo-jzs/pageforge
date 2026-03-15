@@ -48,7 +48,7 @@
 //             value={name}
 //             onChange={(e) => setName(e.target.value)}
 //             className="bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3
-//                        text-sm text-white outline-none focus:border-yellow-300/50 transition-colors"
+//                        text-sm text-white outline-none focus:border-[#e8ff47]/50 transition-colors"
 //           />
 //           <input
 //             type="email"
@@ -56,7 +56,7 @@
 //             value={email}
 //             onChange={(e) => setEmail(e.target.value)}
 //             className="bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3
-//                        text-sm text-white outline-none focus:border-yellow-300/50 transition-colors"
+//                        text-sm text-white outline-none focus:border-[#e8ff47]/50 transition-colors"
 //           />
 //           <input
 //             type="password"
@@ -64,7 +64,7 @@
 //             value={password}
 //             onChange={(e) => setPassword(e.target.value)}
 //             className="bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3
-//                        text-sm text-white outline-none focus:border-yellow-300/50 transition-colors"
+//                        text-sm text-white outline-none focus:border-[#e8ff47]/50 transition-colors"
 //           />
 
 //           {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -72,7 +72,7 @@
 //           <button
 //             type="submit"
 //             disabled={loading}
-//             className="bg-yellow-300 text-black font-bold py-3 rounded-xl
+//             className="bg-[#e8ff47] text-black font-bold py-3 rounded-xl
 //                        hover:bg-yellow-200 transition-colors disabled:opacity-40 mt-1"
 //           >
 //             {loading ? "Creating account..." : "Create account"}
@@ -109,7 +109,7 @@
 
 //         <p className="text-center text-xs text-neutral-600 mt-6">
 //           Already have an account?{" "}
-//           <a href="/login" className="text-yellow-300 hover:underline">Sign in</a>
+//           <a href="/login" className="text-[#e8ff47] hover:underline">Sign in</a>
 //         </p>
 //       </div>
 //     </main>
