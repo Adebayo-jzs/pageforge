@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import GenerateForm from "@/components/generate-form";
 import Logo from "@/components/logo";
@@ -34,7 +35,8 @@ export default function Home() {
   // };
 
   return (
-    
+    <>
+    <Navbar/>
     <main className="flex flex-col items-center justify-center min-h-screen py-30 bg-neutral-950 text-neutral-100 px-6">
       {/* Logo + Tagline */}
       <div className="text-center mb-6 flex flex-col items-center">
@@ -99,5 +101,6 @@ export default function Home() {
         </div>
       )}
     </main>
+    </>
   );
 }
