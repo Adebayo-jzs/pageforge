@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
-import clientPromise from "@/lib/mongodb";
+import dbConnect from "@/lib/mongodb";
+import Project from "@/models/Project";
+import { auth } from "@/lib/auth";
 
 function extractHtml(raw: string): string {
   return raw
@@ -58,27 +60,31 @@ async function tryOpenAI(prompt: string): Promise<string> {
 }
 
 async function savePage(doc: {
+  userId: string;
   prompt: string;
   html: string;
   provider: string;
   ip: string;
 }) {
   try {
-    const client = await clientPromise;
-    const db = client.db("pageforge");
-    const result = await db.collection("projects").insertOne({
-      ...doc,
-      createdAt: new Date(),
-    });
-    return result.insertedId.toString();
+    await dbConnect();
+    const result = await Project.create(doc);
+    return result._id.toString();
   } catch (err) {
-    // Don't fail the request if saving fails
     console.error("MongoDB save failed:", err);
     return null;
   }
 }
 
 export async function POST(req: NextRequest) {
+  // Check session first to avoid expensive AI calls for unauthorized users
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { prompt } = await req.json();
 
   if (!prompt?.trim()) {
@@ -107,8 +113,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Save to MongoDB (non-blocking — don't await in the return)
-  const id = await savePage({ prompt, html, provider, ip });
+  // Save to MongoDB
+  const id = await savePage({ userId, prompt, html, provider, ip });
 
   return NextResponse.json({ html, provider, id });
 }
