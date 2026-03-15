@@ -9,16 +9,10 @@ import {
   ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { useState, useRef, useEffect } from "react";
-
-const EXAMPLES = [
-  "An AI tool that writes cold emails for B2B sales teams",
-  "A Notion-like app built for remote engineering teams",
-  "A SaaS platform that automates invoicing for freelancers",
-  "A mobile app that tracks your carbon footprint daily",
-];
+import { useSearchParams, useRouter } from "next/navigation";
 
 type Tab = "preview" | "code";
-type Step = "describe" | "details" | "result";
+type Step = "details" | "result";
 
 interface BusinessDetails {
   name: string;
@@ -70,9 +64,20 @@ function Field({
   );
 }
 
-export default function Home() {
-  const [step, setStep] = useState<Step>("describe");
-  const [prompt, setPrompt] = useState("");
+export default function NewPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const promptFromUrl = searchParams.get("prompt") || "";
+
+  // Redirect to home if no prompt
+  useEffect(() => {
+    if (!promptFromUrl.trim()) {
+      router.replace("/");
+    }
+  }, [promptFromUrl, router]);
+
+  const [step, setStep] = useState<Step>("details");
+  const [prompt] = useState(promptFromUrl);
   const [details, setDetails] = useState<BusinessDetails>(EMPTY_DETAILS);
   const [html, setHtml] = useState("");
   const [loading, setLoading] = useState(false);
@@ -159,13 +164,7 @@ export default function Home() {
   };
 
   const startOver = () => {
-    setStep("describe");
-    setPrompt("");
-    setDetails(EMPTY_DETAILS);
-    setHtml("");
-    setEditableCode("");
-    setError("");
-    setProvider("");
+    router.push("/");
   };
 
 
@@ -185,53 +184,6 @@ export default function Home() {
         </div>
 
         <div className="flex-1 flex flex-col p-8 pt-6 gap-5">
-          {/* ─── Step 1: Description ─── */}
-          {step === "describe" && (
-            <>
-              <textarea
-                className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-sm
-                           text-neutral-200 resize-none outline-none focus:border-yellow-300/50
-                           transition-colors placeholder:text-neutral-600"
-                placeholder="e.g. A SaaS tool that turns Figma designs into production React components..."
-                rows={6}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                    if (prompt.trim()) setStep("details");
-                  }
-                }}
-              />
-
-              <button
-                onClick={() => setStep("details")}
-                disabled={!prompt.trim()}
-                className="w-full bg-yellow-300 text-black font-bold py-3 rounded-xl
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           hover:bg-yellow-200 transition-colors text-sm"
-              >
-                Next →
-              </button>
-
-              {/* Examples */}
-              <div className="flex flex-col gap-2">
-                <p className="text-xs uppercase tracking-widest text-neutral-600 font-semibold">
-                  Try an example
-                </p>
-                {EXAMPLES.map((ex, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPrompt(ex)}
-                    className="text-left text-xs text-neutral-500 border border-neutral-800
-                               rounded-lg p-3 hover:border-neutral-600 hover:text-neutral-300
-                               transition-all"
-                  >
-                    {ex}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
 
           {/* ─── Step 2: Business Details (optional) ─── */}
           {step === "details" && (
@@ -269,7 +221,7 @@ export default function Home() {
 
               <div className="flex gap-2 mt-1">
                 <button
-                  onClick={() => setStep("describe")}
+                  onClick={startOver}
                   className="flex-1 border border-neutral-700 text-neutral-300 font-medium py-2.5 rounded-xl
                              hover:bg-neutral-800 transition-colors text-sm"
                 >
