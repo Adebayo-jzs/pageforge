@@ -109,19 +109,21 @@ export default function DashboardPage() {
           border-bottom: 1px solid #1a1a1a;
         }
         .thumbnail-iframe {
-          width: 1280px;
-          height: 720px;
+          width: 400%;
+          height: 400%;
           border: none;
           transform: scale(0.25);
           transform-origin: 0 0;
           pointer-events: none;
           opacity: 0.8;
           transition: opacity 0.3s;
+          overflow: hidden !important;
         }
         .card:hover .thumbnail-iframe { opacity: 1; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+        
+        /* Hide all scrollbars (scrollkit) */
+        ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}</style>
 
       {/* Nav */}
@@ -296,8 +298,9 @@ export default function DashboardPage() {
                       srcDoc={page.html}
                       className="thumbnail-iframe"
                       title={`Preview ${page._id}`}
+                      scrolling="no"
                     />
-                    <div style={{ position: "absolute", inset: 0, zIndex: 10 }} /> {/* Overlay to disable interaction */}
+                    <div style={{ position: "absolute", inset: 0, zIndex: 10 }} />  
                   </div>
 
                   {/* Info Section */}
