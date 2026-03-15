@@ -7,6 +7,7 @@ import {
   Download01Icon,
   ReloadIcon,
   ViewIcon,
+  Link01Icon,
 } from "@hugeicons/core-free-icons";
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -83,6 +84,7 @@ export default function NewPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [provider, setProvider] = useState("");
+  const [pageId, setPageId] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("preview");
   const [editableCode, setEditableCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -125,6 +127,7 @@ export default function NewPage() {
       setHtml(data.html);
       setEditableCode(data.html);
       setProvider(data.provider);
+      if (data.id) setPageId(data.id);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -149,6 +152,13 @@ export default function NewPage() {
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(editableCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyLink = async () => {
+    const url = `${window.location.origin}/p/${pageId}`;
+    await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -260,7 +270,7 @@ export default function NewPage() {
               )}
 
               {/* Regenerate & Start Over */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-4">
                 <button
                   onClick={startOver}
                   className="flex-1 border border-neutral-700 text-neutral-300 font-medium py-2.5 rounded-xl
@@ -278,6 +288,30 @@ export default function NewPage() {
                   {loading ? "Generating..." : "⚡ Regenerate"}
                 </button>
               </div>
+
+              {/* Shareable Link Container */}
+              {pageId && !loading && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 flex flex-col gap-2">
+                  <p className="text-[11px] uppercase tracking-widest text-neutral-500 font-semibold mb-1">
+                    Share Link
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={`${typeof window !== "undefined" ? window.location.origin : ""}/p/${pageId}`}
+                      className="flex-1 bg-neutral-950 text-xs text-neutral-400 p-2 rounded outline-none border border-neutral-800"
+                    />
+                    <button 
+                      onClick={copyLink}
+                      title="Copy Link"
+                      className="p-2 border border-neutral-700 bg-neutral-800 rounded hover:bg-neutral-700 hover:text-white transition-colors text-neutral-400"
+                    >
+                      {copied ? <HugeiconsIcon icon={CopyCheckIcon} className="w-4 h-4 text-green-400" /> : <HugeiconsIcon icon={Link01Icon} className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
