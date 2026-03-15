@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
+import clientPromise from "@/lib/mongodb";
 
-// Strip markdown code fences if model wraps output
 function extractHtml(raw: string): string {
   return raw
     .replace(/^```html\s*/i, "")
@@ -23,16 +23,10 @@ async function tryGemini(prompt: string): Promise<string> {
       }),
     }
   );
-
   if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
   const data = await res.json();
-
-  // Check for truncation
-  const finishReason = data.candidates?.[0]?.finishReason;
-  if (finishReason === "MAX_TOKENS") {
-    throw new Error("Gemini output was truncated (MAX_TOKENS)");
-  }
-
+  if (data.candidates?.[0]?.finishReason === "MAX_TOKENS")
+    throw new Error("Gemini output truncated");
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!raw) throw new Error("Gemini returned empty content");
   return extractHtml(raw);
@@ -54,19 +48,34 @@ async function tryOpenAI(prompt: string): Promise<string> {
       ],
     }),
   });
-
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
   const data = await res.json();
-
-  // Check for truncation
-  const finishReason = data.choices?.[0]?.finish_reason;
-  if (finishReason === "length") {
-    throw new Error("OpenAI output was truncated (length limit)");
-  }
-
+  if (data.choices?.[0]?.finish_reason === "length")
+    throw new Error("OpenAI output truncated");
   const raw = data.choices?.[0]?.message?.content;
   if (!raw) throw new Error("OpenAI returned empty content");
   return extractHtml(raw);
+}
+
+async function savePage(doc: {
+  prompt: string;
+  html: string;
+  provider: string;
+  ip: string;
+}) {
+  try {
+    const client = await clientPromise;
+    const db = client.db("pageforge");
+    const result = await db.collection("projects").insertOne({
+      ...doc,
+      createdAt: new Date(),
+    });
+    return result.insertedId.toString();
+  } catch (err) {
+    // Don't fail the request if saving fails
+    console.error("MongoDB save failed:", err);
+    return null;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -76,15 +85,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
   }
 
-  // Try Gemini first, fall back to OpenAI
+  const ip = req.headers.get("x-forwarded-for") ?? "unknown";
+
+  let html: string;
+  let provider: string;
+
   try {
-    const html = await tryGemini(prompt);
-    return NextResponse.json({ html, provider: "gemini" });
+    html = await tryGemini(prompt);
+    provider = "gemini";
   } catch (geminiErr) {
     console.warn("Gemini failed, trying OpenAI:", (geminiErr as Error).message);
     try {
-      const html = await tryOpenAI(prompt);
-      return NextResponse.json({ html, provider: "openai" });
+      html = await tryOpenAI(prompt);
+      provider = "openai";
     } catch (openaiErr) {
       console.error("OpenAI also failed:", (openaiErr as Error).message);
       return NextResponse.json(
@@ -93,4 +106,9 @@ export async function POST(req: NextRequest) {
       );
     }
   }
+
+  // Save to MongoDB (non-blocking — don't await in the return)
+  const id = await savePage({ prompt, html, provider, ip });
+
+  return NextResponse.json({ html, provider, id });
 }
