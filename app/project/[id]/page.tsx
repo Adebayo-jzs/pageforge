@@ -142,7 +142,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
   if (loading) {
     return (
       <main className="flex h-screen bg-neutral-950 items-center justify-center">
-        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-yellow-300 w-8 h-8" />
+        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-[#e8ff47] w-8 h-8" />
       </main>
     );
   }
@@ -206,9 +206,9 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
             <button
               onClick={regenerate}
               disabled={isRegenerating}
-              className="w-full bg-yellow-300 text-black font-bold py-3 rounded-xl
-                         disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-yellow-300/5
-                         hover:bg-yellow-200 transition-colors text-sm flex items-center justify-center gap-2"
+              className="w-full bg-[#e8ff47] text-black font-bold py-3 rounded-xl
+                         disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#e8ff47]/5
+                         hover:bg-[#e8ff47]/50 transition-colors text-sm flex items-center justify-center gap-2"
             >
               {isRegenerating ? (
                 <>
@@ -216,7 +216,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
                   Generating New Version...
                 </>
               ) : (
-                "⚡ Regenerate Design"
+                "Regenerate Design"
               )}
             </button>
             
@@ -299,7 +299,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
               onClick={downloadHtml}
               title="Download HTML"
               className="text-xs bg-neutral-800/80 text-neutral-300 border border-neutral-700/50
-                         hover:text-yellow-300 px-3 py-1.5 rounded-lg hover:bg-neutral-800
+                         hover:text-[#e8ff47] px-3 py-1.5 rounded-lg hover:bg-neutral-800
                          transition-all flex items-center gap-1.5"
             >
               <HugeiconsIcon icon={Download01Icon} className="w-4 h-4" />
@@ -348,7 +348,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
         <div className="flex-1 relative overflow-hidden bg-white">
           {isRegenerating && (
              <div className="absolute inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-neutral-200">
-               <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-yellow-300 w-10 h-10 mb-4" />
+               <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-[#e8ff47] w-10 h-10 mb-4" />
                <p className="font-bold tracking-wide">Rebuilding Code...</p>
              </div>
           )}
@@ -380,7 +380,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
               <textarea
                 className="flex-1 bg-transparent text-neutral-300 text-xs leading-6
                            font-mono p-4 outline-none resize-none min-w-0
-                           selection:bg-yellow-300/20 overflow-auto"
+                           selection:bg-[#e8ff47]/20 overflow-auto"
                 value={editableCode}
                 onChange={(e) => setEditableCode(e.target.value)}
                 onScroll={(e) => {
@@ -399,7 +399,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
                 {editableCode.split("\n").length} lines · {(editableCode.length / 1024).toFixed(1)} KB
               </span>
               {editableCode !== html && (
-                <span className="flex items-center gap-2 font-medium text-yellow-300/80">
+                <span className="flex items-center gap-2 font-medium text-[#e8ff47]/80">
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
                   Modified visually. Switch to Preview to render.
                 </span>

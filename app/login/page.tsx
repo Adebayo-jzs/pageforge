@@ -46,7 +46,7 @@
 //             value={email}
 //             onChange={(e) => setEmail(e.target.value)}
 //             className="bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3
-//                        text-sm text-white outline-none focus:border-yellow-300/50 transition-colors"
+//                        text-sm text-white outline-none focus:border-[#e8ff47]/50 transition-colors"
 //           />
 //           <input
 //             type="password"
@@ -54,7 +54,7 @@
 //             value={password}
 //             onChange={(e) => setPassword(e.target.value)}
 //             className="bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3
-//                        text-sm text-white outline-none focus:border-yellow-300/50 transition-colors"
+//                        text-sm text-white outline-none focus:border-[#e8ff47]/50 transition-colors"
 //           />
 
 //           {(error || authError) && (
@@ -66,7 +66,7 @@
 //           <button
 //             type="submit"
 //             disabled={loading}
-//             className="bg-yellow-300 text-black font-bold py-3 rounded-xl
+//             className="bg-[#e8ff47] text-black font-bold py-3 rounded-xl
 //                        hover:bg-yellow-200 transition-colors disabled:opacity-40 mt-1"
 //           >
 //             {loading ? "Signing in..." : "Sign in"}
@@ -103,7 +103,7 @@
 
 //         <p className="text-center text-xs text-neutral-600 mt-6">
 //           Don't have an account?{" "}
-//           <a href="/register" className="text-yellow-300 hover:underline">Create one</a>
+//           <a href="/register" className="text-[#e8ff47] hover:underline">Create one</a>
 //         </p>
 //       </div>
 //     </main>

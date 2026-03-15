@@ -2,6 +2,10 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import GenerateForm from "@/components/generate-form";
+import Logo from "@/components/logo";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 type Page = {
   _id: string;
@@ -31,6 +35,7 @@ export default function DashboardPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewHtml, setPreviewHtml] = useState<string>("");
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -76,280 +81,132 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white" style={{ fontFamily: "'DM Mono', monospace" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .card { transition: border-color 0.2s, transform 0.2s; }
-        .card:hover { border-color: #e8ff47 !important; transform: translateY(-1px); }
-        .btn { transition: all 0.15s; cursor: pointer; }
-        .btn:hover { opacity: 0.8; }
-        .btn:active { transform: scale(0.97); }
-        .fade-in { animation: fadeIn 0.4s ease forwards; opacity: 0; }
-        @keyframes fadeIn { to { opacity: 1; } }
-        .stagger-1 { animation-delay: 0.05s; }
-        .stagger-2 { animation-delay: 0.1s; }
-        .stagger-3 { animation-delay: 0.15s; }
-        .stagger-4 { animation-delay: 0.2s; }
-        .stagger-5 { animation-delay: 0.25s; }
-        .provider-gemini { color: #888; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
-        .provider-openai { color: #888; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
-        .card-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 20px;
-        }
-        .thumbnail-container {
-          width: 100%;
-          height: 180px;
-          overflow: hidden;
-          position: relative;
-          background: #0d0d0d;
-          border-radius: 12px 12px 0 0;
-          border-bottom: 1px solid #1a1a1a;
-        }
-        .thumbnail-iframe {
-          width: 400%;
-          height: 400%;
-          border: none;
-          transform: scale(0.25);
-          transform-origin: 0 0;
-          pointer-events: none;
-          opacity: 0.8;
-          transition: opacity 0.3s;
-          overflow: hidden !important;
-        }
-        .card:hover .thumbnail-iframe { opacity: 1; }
-        
-        /* Hide all scrollbars (scrollkit) */
-        ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
-        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-      `}</style>
-
+    <div className="min-h-screen bg-[#080808] text-white">
+      
+       
       {/* Nav */}
-      <nav style={{
-        borderBottom: "1px solid #1a1a1a",
-        padding: "0 32px",
-        height: 56,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "sticky",
-        top: 0,
-        background: "#080808",
-        zIndex: 50,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <span
-            style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: "0.05em", cursor: "pointer" }}
-            onClick={() => router.push("/")}
-          >
-            Page<span style={{ color: "#e8ff47" }}>Forge</span>
-          </span>
-          <span style={{ color: "#333", fontSize: 12 }}>|</span>
-          <span style={{ color: "#555", fontSize: 12 }}>Dashboard</span>
+      <nav className="flex border-b border-[#1a1a1a] px-4  md:px-8 h-14 sticky top-0 z-50 items-center justify-between bg-background">
+        <div className="flex items-center gap-6">
+          <Logo size="sm" />
+          <span className="text-[#333] text-[12px]">|</span>
+          <span className="text-[#555] text-[12px]">Dashboard</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%",
-              background: "#e8ff47", color: "#000",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 11, fontWeight: 700,
-            }}>
-              {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-0 flex-col">
+            <div className="w-7 h-7 rounded-full bg-[#e8ff47] text-black flex items-center justify-center text-[11px] font-bold">
+              {session?.user?.name  ?.[0]?.toUpperCase() ?? "U"}
             </div>
-            <span style={{ fontSize: 12, color: "#666" }}>{session?.user?.email}</span>
+            <span className="text-[12px] text-[#666]  sm:inline">{session?.user?.name}</span>
           </div>
           <button
-            className="btn"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            style={{
-              background: "transparent",
-              border: "1px solid #222",
-              borderRadius: 8,
-              padding: "6px 12px",
-              color: "#555",
-              fontSize: 11,
-              fontFamily: "inherit",
-            }}
+            className="btn bg-red-600/90 hover:bg-red-600 text-white px-3 py-1.5 cursor-pointer rounded-md text-[11px] transition-colors"
+            onClick={() => signOut({ callbackUrl: "/login" })} 
           >
             Sign out
           </button>
         </div>
       </nav>
-
-      <div style={{ display: "flex", height: "calc(100vh - 56px)" }}>
+      
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-3.5rem)]">
+      {/* <div> */}
 
         {/* Left — page list */}
-        <div style={{
-          width: previewId ? 420 : "100%",
-          borderRight: previewId ? "1px solid #1a1a1a" : "none",
-          overflowY: "auto",
-          padding: 32,
-          transition: "width 0.3s ease",
-        }}>
+        <div className={`w-full transition-all duration-300 overflow-y-auto p-3 md:p-6 ${previewId ? "lg:w-[420px] lg:border-r lg:border-[#1a1a1a]" : "w-full"}`}>
           {/* Header row */}
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 48 }}>
-            <h1 style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: 48,
-                letterSpacing: "0.02em",
-                lineHeight: 1,
-                color: "#fff",
-              }}>
+          <div className="flex flex-col sm:flex-row sm:items-baseline p-6 md:p-8 justify-between gap-6 mb-12">
+            <h1 className="text-5xl font-bebas tracking-wide text-white leading-none">
                 Recent Projects
             </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ color: "#444", fontSize: 13, fontWeight: 500 }}>
+            <div className="flex items-center gap-3">
+                <span className="text-[#444] text-[13px] font-medium">
                     {loading ? "..." : `${pages.length} generated`}
                 </span>
                 <button
-                    className="btn"
-                    onClick={() => router.push("/")}
-                    style={{
-                        background: "#e8ff47",
-                        color: "#000",
-                        border: "none",
-                        borderRadius: 10,
-                        padding: "10px 20px",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        fontFamily: "inherit",
-                        letterSpacing: "0.03em",
-                    }}
+                    className="btn text-black border-none rounded-sm px-5 py-2 text-[12px] bg-[#e8ff47] flex gap-2 items-center font-bold cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                    onClick={() => setIsModalOpen(true)}
                 >
-                    + New
+                    <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" />New
                 </button>
             </div>
           </div>
 
           {/* Empty state */}
           {!loading && pages.length === 0 && (
-            <div style={{
-              border: "1px dashed #1e1e1e",
-              borderRadius: 16,
-              padding: "64px 32px",
-              textAlign: "center",
-            }}>
-              <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.3 }}>◈</div>
-              <p style={{ color: "#444", fontSize: 14, marginBottom: 8 }}>No pages yet</p>
-              <p style={{ color: "#333", fontSize: 12 }}>Generate your first landing page to see it here</p>
-              <button
-                className="btn"
-                onClick={() => router.push("/")}
-                style={{
-                  marginTop: 24,
-                  background: "#e8ff47",
-                  color: "#000",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "10px 20px",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                }}
-              >
-                Generate a page
-              </button>
+            <div className="border border-dashed border-[#1e1e1e] rounded-xl px-3 py-20 md:py-32 flex flex-col items-center justify-center bg-[#0d0d0d]/50">
+              <div className="text-center">
+                <div className="text-4xl md:text-5xl mb-6 opacity-30 text-white">◈</div>
+                <p className="text-neutral-400 text-sm md:text-base mb-2">No projects yet</p>
+                <p className="text-neutral-600 text-xs md:text-sm mb-10">Generate your first landing page to see it here</p>
+              </div>
+              <GenerateForm/>
             </div>
           )}
 
           {/* Loading skeleton */}
           {loading && (
-            <div className="card-grid">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${previewId ? "lg:grid-cols-1" : "lg:grid-cols-3"} gap-6`}>
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} style={{
-                  height: 320,
-                  background: "#111",
-                  borderRadius: 12,
-                  border: "1px solid #1a1a1a",
-                  animation: "pulse 1.5s ease-in-out infinite",
-                }} />
+                <div key={i} className="h-80 bg-[#111] rounded-xl border border-[#1a1a1a] animate-pulse" />
               ))}
-              <style>{`@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }`}</style>
             </div>
           )}
 
           {/* Page cards */}
           {!loading && pages.length > 0 && (
-            <div className="card-grid">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${previewId ? "lg:grid-cols-1" : "lg:grid-cols-3"} gap-6`}>
               {pages.map((page: Page, i: number) => (
                 <div
                   key={page._id}
-                  className={`card fade-in stagger-${Math.min((i % 5) + 1, 5)}`}
-                  style={{
-                    background: "#0d0d0d",
-                    border: `1px solid #1a1a1a`,
-                    borderRadius: 12,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    position: "relative",
-                  }}
+                  className={`group relative flex flex-col overflow-hidden rounded-xl border border-[#1a1a1a] bg-[#0d0d0d] transition-all duration-200 hover:border-[#e8ff47] cursor-pointer fade-in stagger-${Math.min((i % 5) + 1, 5)}`}
                   onClick={() => handlePreview(page._id)}
                 >
                   {/* Visual Preview */}
-                  <div className="thumbnail-container">
+                  <div className="relative w-full h-[180px] overflow-hidden bg-[#0d0d0d] border-b border-[#1a1a1a]">
                     <iframe
                       srcDoc={page.html}
-                      className="thumbnail-iframe"
+                      className="w-[400%] h-[400%] border-none origin-top-left scale-[0.25] opacity-80 group-hover:opacity-100 transition-opacity"
                       title={`Preview ${page._id}`}
                       scrolling="no"
                     />
-                    <div style={{ position: "absolute", inset: 0, zIndex: 10 }} />  
+                    <div className="absolute inset-0 z-10" />  
                   </div>
 
                   {/* Info Section */}
-                  <div style={{ padding: 20, flex: 1, display: "flex", flexDirection: "column" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                      <span className={`provider-${page.provider.toLowerCase()}`}>
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className={`text-[10px] font-bold uppercase tracking-widest ${page.provider.toLowerCase() === 'gemini' ? 'text-blue-400' : 'text-neutral-500'}`}>
                         {page.provider}
                       </span>
-                      <span style={{ fontSize: 10, color: "#444", fontWeight: 500 }}>
+                      <span className="text-[10px] text-neutral-600 font-medium">
                         {new Date(page.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
-                    <p style={{
-                      fontSize: 14,
-                      color: "#aaa",
-                      lineHeight: 1.5,
-                      marginBottom: 20,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      flex: 1,
-                    }}>
+                    <p className="text-sm text-neutral-400 leading-relaxed mb-5 line-clamp-3 flex-1">
                       {page.prompt}
                     </p>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                      <span style={{ color: "#e8ff47", fontSize: 11, fontWeight: 600 }}>
+                    <div className="flex justify-between items-center mt-auto">
+                      <span className="text-[#e8ff47] text-[11px] font-semibold group-hover:underline">
                         View Project
                       </span>
-                      <div style={{ color: "#333", display: "flex", alignItems: "center", gap: 8 }}>
+                      <div className="flex items-center gap-3 text-neutral-600">
                          <button
-                            className="btn"
+                            className="p-1 hover:text-white transition-colors cursor-pointer"
                             onClick={(e) => { e.stopPropagation(); handleDownload(page._id, page.prompt); }}
                             title="Download"
-                            style={{ background: "transparent", border: "none", color: "#444", fontSize: 14 }}
                          >
-                            ↓
+                            <span className="text-lg leading-none">↓</span>
                          </button>
                          <button
-                            className="btn"
+                            className="p-1 hover:text-red-500 transition-colors cursor-pointer"
                             onClick={(e) => { e.stopPropagation(); handleDelete(page._id); }}
                             title="Delete"
-                            style={{ background: "transparent", border: "none", color: "#444", fontSize: 14 }}
                          >
-                            ×
+                            <span className="text-lg leading-none">×</span>
                          </button>
-                         <span style={{ fontSize: 16 }}>→</span>
+                         <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
                       </div>
                     </div>
                   </div>
@@ -361,74 +218,38 @@ export default function DashboardPage() {
 
         {/* Full-screen preview overlay */}
         {previewId && (
-          <div style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.95)",
-            zIndex: 1000,
-            display: "flex",
-            flexDirection: "column",
-            animation: "fadeIn 0.2s ease",
-          }}>
+          <div className="fixed inset-0 bg-black/95 z-[1000] flex flex-col animate-in fade-in duration-200">
             {/* Overlay header */}
-            <div style={{
-              padding: "16px 32px",
-              borderBottom: "1px solid #1a1a1a",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              background: "#080808",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                 <div style={{ display: "flex", gap: 6 }}>
-                    <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ff5f57" }} />
-                    <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#febc2e" }} />
-                    <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#28c840" }} />
+            <div className="px-4 md:px-8 py-4 border-b border-[#1a1a1a] flex items-center justify-between bg-[#080808]">
+              <div className="flex items-center gap-4 overflow-hidden">
+                 <div className="hidden sm:flex gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                    <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
+                    <span className="w-3 h-3 rounded-full bg-[#28c840]" />
                  </div>
-                 <span style={{ fontSize: 13, color: "#666", fontWeight: 500 }}>
-                    {pages.find((p: Page) => p._id === previewId)?.prompt.slice(0, 80)}...
+                 <span className="text-[13px] text-neutral-500 font-medium truncate max-w-[200px] md:max-w-md">
+                    {pages.find((p: Page) => p._id === previewId)?.prompt}
                  </span>
               </div>
               <button
-                className="btn"
+                className="btn bg-[#1a1a1a] border-none text-white px-6 py-2 rounded-lg text-xs font-semibold hover:bg-[#252525] transition-colors"
                 onClick={() => setPreviewId(null)}
-                style={{
-                  background: "#1a1a1a",
-                  border: "none",
-                  color: "#fff",
-                  padding: "8px 24px",
-                  borderRadius: 8,
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
               >
                 Close Preview
               </button>
             </div>
 
             {/* iframe */}
-            <div style={{ flex: 1, position: "relative", background: "#fff" }}>
+            <div className="flex-1 relative bg-white overflow-hidden">
               {previewLoading ? (
-                <div style={{
-                  position: "absolute", inset: 0,
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  color: "#333", gap: 12,
-                  background: "#080808",
-                }}>
-                  <div style={{
-                    width: 32, height: 32,
-                    border: "3px solid #e8ff47",
-                    borderTopColor: "transparent",
-                    borderRadius: "50%",
-                    animation: "spin 0.6s linear infinite",
-                  }} />
-                  <span style={{ fontSize: 12, color: "#555" }}>Rendering...</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white gap-3 bg-[#080808]">
+                  <div className="w-8 h-8 border-3 border-[#e8ff47] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[12px] text-neutral-500">Rendering...</span>
                 </div>
               ) : (
                 <iframe
                   srcDoc={previewHtml}
-                  style={{ width: "100%", height: "100%", border: "none" }}
+                  className="w-full h-full border-none"
                   title="Page preview"
                   sandbox="allow-scripts allow-same-origin"
                 />
@@ -436,7 +257,32 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Modal Overlay for New Project */}
+        {isModalOpen && (
+          <div 
+            className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsModalOpen(false);
+            }}
+          >
+            <div className="w-full max-w-2xl bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-8 relative shadow-2xl animate-in zoom-in-95 duration-200">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors cursor-pointer text-2xl"
+              >
+                ×
+              </button>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-2 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>Create New Project</h2>
+                <p className="text-sm text-neutral-400">Describe what you want to build and PageForge will generate it for you.</p>
+              </div>
+              <GenerateForm />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+ 
