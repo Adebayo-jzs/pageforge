@@ -1,30 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ReloadIcon } from "@hugeicons/core-free-icons";
 
-interface BusinessDetails {
-  name: string;
-  email: string;
-  phone: string;
-  twitter: string;
-  instagram: string;
-  linkedin: string;
-  github: string;
-  website: string;
+interface DynamicField {
+  id: string;
+  label: string;
+  placeholder: string;
 }
-
-const EMPTY_DETAILS: BusinessDetails = {
-  name: "",
-  email: "",
-  phone: "",
-  twitter: "",
-  instagram: "",
-  linkedin: "",
-  github: "",
-  website: "",
-};
 
 function Field({
   label,
@@ -53,7 +37,7 @@ function Field({
   );
 }
 
-export default function NewPage() {
+function NewPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const promptFromUrl = searchParams.get("prompt") || "";
@@ -65,12 +49,42 @@ export default function NewPage() {
   }, [promptFromUrl, router]);
 
   const [prompt] = useState(promptFromUrl);
-  const [details, setDetails] = useState<BusinessDetails>(EMPTY_DETAILS);
+  const [fields, setFields] = useState<DynamicField[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [analyzing, setAnalyzing] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const updateDetail = (key: keyof BusinessDetails, value: string) => {
-    setDetails((prev) => ({ ...prev, [key]: value }));
+  useEffect(() => {
+    async function loadFields() {
+      if (!promptFromUrl.trim()) return;
+      try {
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: promptFromUrl }),
+        });
+        const data = await res.json();
+        if (data.fields) {
+          setFields(data.fields);
+          // Initialize empty answers
+          const initialAnswers: Record<string, string> = {};
+          data.fields.forEach((f: DynamicField) => {
+            initialAnswers[f.id] = "";
+          });
+          setAnswers(initialAnswers);
+        }
+      } catch (err) {
+        console.error("Failed to analyze prompt", err);
+      } finally {
+        setAnalyzing(false);
+      }
+    }
+    loadFields();
+  }, [promptFromUrl]);
+
+  const updateAnswer = (id: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
   const generate = async () => {
@@ -78,13 +92,15 @@ export default function NewPage() {
     setLoading(true);
     setError("");
 
-    const filledDetails = Object.entries(details)
-      .filter(([, v]) => v.trim())
-      .map(([k, v]) => `${k}: ${v}`)
+    // Build the filled details from dynamic fields using their actual labels
+    const filledDetails = fields
+      .map((f) => ({ label: f.label, value: answers[f.id]?.trim() }))
+      .filter((item) => item.value)
+      .map((item) => `${item.label}: ${item.value}`)
       .join("\n");
 
     const fullPrompt = filledDetails
-      ? `${prompt}\n\nBusiness/Contact Details (use these in the page where appropriate):\n${filledDetails}`
+      ? `${prompt}\n\nUser Context/Details (incorporate these into the page design where relevant):\n${filledDetails}`
       : prompt;
 
     try {
@@ -98,7 +114,6 @@ export default function NewPage() {
       if (!res.ok) throw new Error(data.error);
 
       if (data.id) {
-        // Redirect completely to the new workspace route
         router.push(`/project/${data.id}`);
       } else {
         throw new Error("Failed to retrieve generated project ID.");
@@ -108,6 +123,16 @@ export default function NewPage() {
       setLoading(false);
     }
   };
+
+  if (analyzing) {
+    return (
+      <main className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 text-neutral-100 px-6">
+        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-neutral-600 w-8 h-8 mb-4" />
+        <p className="font-semibold text-lg text-neutral-300">Analyzing your idea...</p>
+        <p className="text-neutral-500 text-sm mt-1">Determining the best data to ask for.</p>
+      </main>
+    );
+  }
 
   if (loading) {
     return (
@@ -147,23 +172,15 @@ export default function NewPage() {
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Business / Brand Name" placeholder="Acme Corp" value={details.name} onChange={(v) => updateDetail("name", v)} />
-              <Field label="Email" placeholder="hello@acme.com" value={details.email} onChange={(v) => updateDetail("email", v)} />
-              <Field label="Phone" placeholder="+1 (555) 123-4567" value={details.phone} onChange={(v) => updateDetail("phone", v)} />
-              <Field label="Website" placeholder="https://acme.com" value={details.website} onChange={(v) => updateDetail("website", v)} />
-            </div>
-
-            <div className="flex items-center gap-2 py-2">
-              <div className="flex-1 h-px bg-neutral-800" />
-              <span className="text-[10px] uppercase tracking-widest text-neutral-600">Social Links</span>
-              <div className="flex-1 h-px bg-neutral-800" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Twitter / X" placeholder="@acmecorp" value={details.twitter} onChange={(v) => updateDetail("twitter", v)} />
-              <Field label="Instagram" placeholder="@acmecorp" value={details.instagram} onChange={(v) => updateDetail("instagram", v)} />
-              <Field label="LinkedIn" placeholder="company/acme-corp" value={details.linkedin} onChange={(v) => updateDetail("linkedin", v)} />
-              <Field label="GitHub" placeholder="acmecorp" value={details.github} onChange={(v) => updateDetail("github", v)} />
+              {fields.map((field) => (
+                <Field
+                  key={field.id}
+                  label={field.label}
+                  placeholder={field.placeholder}
+                  value={answers[field.id] || ""}
+                  onChange={(v) => updateAnswer(field.id, v)}
+                />
+              ))}
             </div>
           </div>
 
@@ -186,5 +203,19 @@ export default function NewPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function NewPage() {
+  return (
+    <Suspense 
+      fallback={
+        <main className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 text-neutral-100 px-6">
+          <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-neutral-600 w-8 h-8 mb-4" />
+        </main>
+      }
+    >
+      <NewPageContent />
+    </Suspense>
   );
 }
