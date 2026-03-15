@@ -6,6 +6,7 @@ import GenerateForm from "@/components/generate-form";
 import Logo from "@/components/logo";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
+import Navbar from "@/components/Navbar";
 
 type Page = {
   _id: string;
@@ -85,7 +86,7 @@ export default function DashboardPage() {
       
        
       {/* Nav */}
-      <nav className="flex border-b border-[#1a1a1a] px-4  md:px-8 h-14 sticky top-0 z-50 items-center justify-between bg-background">
+      {/* <nav className="flex border-b border-[#1a1a1a] px-4  md:px-8 h-14 sticky top-0 z-50 items-center justify-between bg-background">
         <div className="flex items-center gap-6">
           <Logo size="sm" />
           <span className="text-[#333] text-[12px]">|</span>
@@ -106,7 +107,8 @@ export default function DashboardPage() {
             Sign out
           </button>
         </div>
-      </nav>
+      </nav> */}
+      <Navbar/>
       
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-3.5rem)]">
       {/* <div> */}
