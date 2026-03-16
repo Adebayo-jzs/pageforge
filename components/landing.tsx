@@ -2,19 +2,27 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import GenerateForm from '@/components/generate-form';
-// import
+import GenerateForm from './generate-form';
 import { Ai, Analytics, ComputerPhoneSyncIcon, DragDropIcon, Layout01Icon, Lightning, StarIcon, Variable } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import Navbar from '@/components/Navbar';
-import CTA from "@/components/cta";
-import Footer from "@/components/footer";
 
 // ─── Sub-components ───────────────────────────────────────────────
 
 function Nav() {
   return (
-    <Navbar/>
+    <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-[5%] h-16 bg-landing-bg/85 backdrop-blur-lg border-b border-landing-border">
+      <Link href="#" className="font-instrument text-[1.4rem] tracking-tight text-landing-ink no-underline">
+        pageforge<span className="text-landing-accent">.</span>
+      </Link>
+      <ul className="hidden md:flex gap-8 list-none">
+        <li><Link href="#features" className="no-underline text-landing-ink-muted text-[0.9rem] font-[450] hover:text-landing-ink transition-colors duration-200">Features</Link></li>
+        <li><Link href="#how" className="no-underline text-landing-ink-muted text-[0.9rem] font-[450] hover:text-landing-ink transition-colors duration-200">How it works</Link></li>
+        <li><Link href="#pricing" className="no-underline text-landing-ink-muted text-[0.9rem] font-[450] hover:text-landing-ink transition-colors duration-200">Pricing</Link></li>
+      </ul>
+      <button className="bg-landing-ink text-white border-none rounded-full px-[22px] py-2 text-[0.875rem] font-medium cursor-pointer transition-all duration-200 hover:bg-landing-accent hover:-translate-y-[1px] font-inherit">
+        Start free →
+      </button>
+    </nav>
   );
 }
 
@@ -39,9 +47,7 @@ function Hero() {
         Describe your product in plain English. pageforge&apos;s AI writes the copy, picks the layout, and ships a stunning page — instantly.
       </p>
 
-      <div className="w-full flex gap-3 flex-wrap justify-center animate-[fade-up_.8s_.45s_ease_both] relative z-[1]">
-        <div className="absolute rounded-full blur-[60px] pointer-events-none w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(232,82,26,0.25)_0%,transparent_70%)] -top-[100px] -left-[60px]" />
-        <div className="absolute rounded-full blur-[60px] pointer-events-none w-[250px] h-[250px] bg-[radial-gradient(circle,rgba(45,91,227,0.2)_0%,transparent_70%)] -bottom-[80px] -right-[40px]" />
+      <div className="flex gap-3 flex-wrap justify-center animate-[fade-up_.8s_.45s_ease_both] relative z-[1]">
         {/* <button className="bg-landing-ink text-white border-none rounded-full px-8 py-[15px] text-base font-medium cursor-pointer font-inherit shadow-[0_4px_20px_rgba(26,23,20,0.20)] transition-all duration-250 inline-flex items-center gap-2 hover:bg-landing-accent hover:-translate-y-[2px] hover:shadow-[0_8px_28px_rgba(232,82,26,0.35)]">
           Build my page free →
         </button>
@@ -112,9 +118,9 @@ function Hero() {
 const FEATURES_DATA = [
   { icon: Ai, title: 'AI Copywriting', text: 'Compelling headlines, benefit-driven body copy, and persuasive CTAs — all generated from a single sentence.' },
   { icon:Layout01Icon, title: 'Layout Intelligence', text: 'The AI picks the optimal section order and visual hierarchy based on your goal — capture, convert, or inform.' },
-  // { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. pageforge extracts colors, tone, and style automatically.' },
-  // { icon: Lightning, title: 'One-click Publishing', text: 'Deploy to a custom subdomain in milliseconds. Connect your own domain with two DNS records.' },
-  // { icon: Variable, title: 'A/B Variants', text: 'Generate 3 headline variants and let real traffic decide the winner. No guesswork, no dev time.' },
+  { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. pageforge extracts colors, tone, and style automatically.' },
+  { icon: Lightning, title: 'One-click Publishing', text: 'Deploy to a custom subdomain in milliseconds. Connect your own domain with two DNS records.' },
+  { icon: Variable, title: 'A/B Variants', text: 'Generate 3 headline variants and let real traffic decide the winner. No guesswork, no dev time.' },
   { icon: Analytics, title: 'Analytics Built-in', text: 'Conversion rate, scroll depth, and click heatmaps ship with every page. No third-party tags needed.' },
   { icon: ComputerPhoneSyncIcon, title: 'Responsive by default', text: 'Pixel-perfect layouts that look stunning on mobile, tablet, and desktop.' },
 ];
@@ -131,7 +137,7 @@ function Features() {
         </h2>
         <p className="text-[1.05rem] text-landing-ink-muted max-w-[520px] leading-[1.7] font-[350]">From first prompt to live URL — the entire creative and technical stack, automated.</p>
       </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5">
         {FEATURES_DATA.map((feat, i) => (
           <div key={i} className="reveal bg-landing-bg border border-landing-border rounded-landing-lg p-8 transition-all duration-300 relative overflow-hidden group hover:-translate-y-1 hover:shadow-landing-md hover:border-landing-accent/20 text-left">
             <div className="absolute inset-0 bg-[linear-gradient(135deg,var(--color-landing-accent-soft)_0%,transparent_60%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -300,7 +306,7 @@ function Pricing() {
             {tier.featured && <div className="absolute -top-3 left-1/2 -track-x-1/2 -translate-x-1/2 bg-landing-accent text-white rounded-full px-[14px] py-1 text-[0.72rem] font-semibold whitespace-nowrap">Most popular</div>}
             <div className={`text-[0.8rem] font-semibold tracking-[0.06em] uppercase mb-3 ${tier.featured ? 'text-white/60' : 'text-landing-ink-muted'}`}>{tier.name}</div>
             <div className="font-instrument text-[3rem] leading-none tracking-[-0.03em] mb-1">
-              <sup className="text-[1.2rem]  mt-2 font-dmsans">$</sup>{tier.price}
+              <sup className="text-[1.2rem] align-top mt-2 font-dmsans">$</sup>{tier.price}
             </div>
             <div className={`text-[0.85rem] mb-3 ${tier.featured ? 'text-white/40' : 'text-landing-ink-muted'}`}>{tier.period}</div>
             <div className={`text-[0.88rem] mb-7 leading-[1.5] ${tier.featured ? 'text-white/50' : 'text-landing-ink-muted'}`}>{tier.desc}</div>
@@ -321,7 +327,40 @@ function Pricing() {
   );
 }
 
- 
+function FinalCTA() {
+  return (
+    <section className="bg-landing-bg text-center py-[120px] px-[5%]">
+      <div className="reveal max-w-[700px] mx-auto bg-landing-ink rounded-[28px] p-[72px_48px] relative overflow-hidden text-center">
+        <div className="absolute rounded-full blur-[60px] pointer-events-none w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(232,82,26,0.25)_0%,transparent_70%)] -top-[100px] -left-[60px]" />
+        <div className="absolute rounded-full blur-[60px] pointer-events-none w-[250px] h-[250px] bg-[radial-gradient(circle,rgba(45,91,227,0.2)_0%,transparent_70%)] -bottom-[80px] -right-[40px]" />
+        <h2 className="font-instrument text-[clamp(2rem,4vw,3rem)] text-white tracking-[-0.025em] leading-[1.15] mb-4 relative z-[1]">
+          Your page won&apos;t build<br />itself. <em className="italic text-landing-accent ">But we will.</em>
+        </h2>
+        <p className="text-white/50 text-base leading-[1.7] mb-9 font-[350] relative z-[1]">Join 12,000+ builders who launched faster with pageforge. No design skills needed — just a great idea.</p>
+        <div className="flex gap-3 justify-center flex-wrap relative z-[1]">
+          <button className="bg-landing-accent text-white border-none rounded-full px-8 py-[15px] text-base font-medium cursor-pointer font-inherit shadow-[0_4px_20px_rgba(232,82,26,0.4)] transition-all duration-250 hover:-translate-y-[2px] hover:shadow-[0_8px_28px_rgba(232,82,26,0.55)]">
+            Build my page free →
+          </button>
+          <button className="bg-white/10 text-white/80 border-[1.5px] border-white/10 rounded-full px-7 py-[14px] text-base font-medium cursor-pointer font-inherit transition-all duration-250 hover:bg-white/[0.14] hover:border-white/[0.22]">
+            See examples
+          </button>
+        </div>
+        <p className="mt-4 text-[0.82rem] text-white/30 relative z-[1]">No credit card · Live in 30 seconds · Cancel anytime</p>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-landing-ink p-8 px-[5%] flex items-center justify-between flex-wrap gap-3 border-t border-white/10">
+      <Link href="#" className="font-instrument text-white/60 text-[1.1rem] no-underline">
+        pageforge<span className="text-landing-accent">.</span>
+      </Link>
+      <p className="text-[0.8rem] text-white/20">© 2026 pageforge Inc. All rights reserved.</p>
+    </footer>
+  );
+}
 
 export default function Landing() {
   useEffect(() => {
@@ -366,7 +405,7 @@ export default function Landing() {
       <HowItWorks />
       <Testimonials />
       <Pricing />
-      <CTA />
+      <FinalCTA />
       <Footer />
     </div>
   );

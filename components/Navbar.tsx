@@ -5,9 +5,10 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import GenerateForm from "./generate-form";
-import Logo from "./logo";
+// import Logo from "./logo";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon,Cancel01Icon } from "@hugeicons/core-free-icons";
+import TextIcon from "./texticon";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -29,6 +30,17 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
@@ -39,243 +51,227 @@ export default function Navbar() {
   const navLinks = [
     { label: "how it works", href: "/how-it-works" },
     { label: "privacy policy", href: "/policy" },
+    { label: "pricing", href: "/pricing" },
   ];
 
   const isActive = (href: string) => pathname === href;
 
   const navLinkClass = (href: string) =>
-    `text-xs px-2.5 py-1.5 rounded-md transition-all tracking-wide font-mono ${
+    `text-xs px-2.5 py-1.5 rounded-md transition-all tracking-wide font-dmsans font-medium ${
       isActive(href)
-        ? "text-[#e8ff47]"
-        : "text-neutral-600 hover:text-neutral-300 hover:bg-neutral-900"
+        ? "text-landing-accent"
+        : "text-landing-ink-muted hover:text-landing-ink hover:bg-landing-ink/5"
     }`;
 
   const mobileLinkClass = (href: string) =>
-    `text-xs px-3 py-2.5 rounded-lg transition-all tracking-wide font-mono ${
+    `text-xs px-3 py-2.5 rounded-lg transition-all tracking-wide font-dmsans font-medium ${
       isActive(href)
-        ? "text-[#e8ff47] bg-[#0d0d00]"
-        : "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900"
+        ? "text-landing-accent bg-landing-accent/5"
+        : "text-landing-ink-muted hover:text-landing-ink hover:bg-landing-ink/5"
     }`;
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-[#080808] border-b border-[#141414]">
+      <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-[5%] h-16 bg-landing-bg/85 backdrop-blur-lg border-b border-landing-border">
+      <Link href="/" className="font-instrument text-[1.4rem] tracking-tight text-landing-ink no-underline">
+        pageforge<span className="text-landing-accent">.</span>
+      </Link>
+       
+      <div className="hidden md:flex items-center gap-1 ml-2">
+        {navLinks.map((link) => (
+          <Link key={link.href} href={link.href} className={navLinkClass(link.href)}>
+            {link.label}
+          </Link>
+        ))}
+      </div>
+      <div className="flex gap-2">
+      {session ? (
+        <div ref={dropdownRef} className="relative">
+          <button
+          onClick={() => setDropdownOpen((v) => !v)}
+          className="w-[30px] h-[30px] rounded-full bg-landing-surface border border-landing-border
+                      hover:border-landing-accent text-landing-accent text-[11px] font-medium font-dmsans
+                      flex items-center justify-center transition-all tracking-wider cursor-pointer shadow-landing-sm"
+          title={session?.user?.email ?? "Account"}
+        >
+          {session?.user?.image ? (
+            <Image
+              src={session.user.image}
+              alt={session.user.name || "User"}
+              width={30}
+              height={30}
+              className="rounded-full object-cover"
+            />
+          ) : (
+            session?.user?.name?.[0] || "U"
+          )}
+        </button>
 
-        {/* Main bar */}
-        <div className="flex items-center justify-between h-[52px] px-5 md:px-7">
+        {dropdownOpen && (
+          <div className="absolute top-[calc(100%+8px)] right-0 w-52 bg-white
+                          border border-landing-border rounded-xl overflow-hidden shadow-landing-lg
+                          animate-in fade-in slide-in-from-top-1 duration-150 z-50">
+            {/* User info */}
+            <div className="px-3.5 py-3 border-b border-landing-border bg-landing-bg">
+              <p className="text-xs text-landing-ink truncate mb-0.5 font-bold">
+                {session?.user?.name ?? "User"}
+              </p>
+              <p className="text-[10px] text-landing-ink-faint truncate font-medium">
+                {session?.user?.email}
+              </p>
+            </div>
+        
+            <div className="py-1">
+              <Link href="/dashboard" className="dd-item">
+                <span className="text-landing-ink-muted text-xs">◈</span> dashboard
+              </Link>
+              <button onClick={() => setIsModalOpen(true)} className="dd-item flex items-center gap-2">
+                <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" /> new page
+              </button>
+              <Link href="/policy" className="dd-item">
+                <span className="text-landing-ink-muted text-xs">⚖</span> privacy policy
+              </Link>
+            </div>
+        
+            <div className="h-px bg-landing-border" />
+        
+              <div className="py-1">
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="dd-item w-full text-left hover:!bg-red-50 hover:!text-red-500"
+                >
+                  <span className="text-xs">→</span> sign out
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ):(
+        <>
+        <Link href="/register" className="bg-landing-ink text-white border-none rounded-full px-[22px] py-2 text-[0.875rem] font-medium cursor-pointer transition-all duration-200 hover:bg-landing-accent hover:-translate-y-[1px] font-inherit">
+        Start free →
+        </Link>
+        </>
 
-          {/* Left — logo + desktop links */}
-          <div className="flex items-center gap-1">
-            <Logo size="sm" />
-            <div className="hidden md:flex items-center gap-1 ml-2">
+      )}
+      <button
+        onClick={() => setMobileOpen((v) => !v)}
+        className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] cursor-pointer relative z-[160]"
+        aria-label="Toggle menu"
+      >
+        <span className={`block h-px w-5 bg-landing-ink transition-all duration-300 origin-center
+          ${mobileOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
+        <span className={`block h-px w-5 bg-landing-ink transition-all duration-300
+          ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
+        <span className={`block h-px w-5 bg-landing-ink transition-all duration-300 origin-center
+          ${mobileOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
+      </button>
+      </div>
+    </nav>
+      {mobileOpen && (
+          <div className="fixed inset-0 z-[150] bg-landing-bg flex flex-col items-center justify-center gap-8 p-10 animate-in fade-in zoom-in-95 duration-300 overflow-y-auto">
+            
+            {/* Logo in overlay */}
+            <div className="absolute top-5 left-[5%]">
+              <TextIcon/>
+            </div>
+
+            {/* Close button in overlay */}
+            <button 
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-5 right-[5%] w-10 h-10 flex items-center justify-center text-landing-ink hover:text-landing-accent transition-colors cursor-pointer text-3xl font-light"
+            >
+              <HugeiconsIcon icon={Cancel01Icon}/>
+            </button>
+
+            {/* Nav links */}
+            <div className="flex flex-col items-center gap-6">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className={navLinkClass(link.href)}>
+                <Link 
+                  key={link.href} 
+                  href={link.href} 
+                  className={`text-2xl font-instrument tracking-tight transition-all ${
+                    isActive(link.href) ? "text-landing-accent" : "text-landing-ink hover:text-landing-accent"
+                  }`}
+                >
                   {link.label}
                 </Link>
               ))}
               {session && (
-                <Link href="/dashboard" className={navLinkClass("/dashboard")}>
+                <Link 
+                  href="/dashboard" 
+                  className={`text-2xl font-instrument tracking-tight transition-all ${
+                    isActive("/dashboard") ? "text-landing-accent" : "text-landing-ink hover:text-landing-accent"
+                  }`}
+                >
                   dashboard
                 </Link>
               )}
             </div>
-          </div>
 
-          {/* Right — actions */}
-          <div className="flex items-center gap-2">
+            <div className="w-full max-w-[200px] h-px bg-landing-border" />
 
             {session ? (
-              <>
-                {/* New page button — hidden on small screens */}
-                <button
-                  onClick={() => router.push("/")}
-                  className="hidden sm:flex items-center gap-1.5 bg-[#e8ff47] hover:bg-[#d4eb3a]
-                             active:scale-95 text-black text-[11px] font-medium font-mono
-                             tracking-wider px-3.5 py-[7px] rounded-lg transition-all cursor-pointer"
-                >
-                  <span className="text-sm leading-none">+</span>
-                  new page
-                </button>
-
-                {/* Avatar + dropdown */}
-                <div ref={dropdownRef} className="relative">
-                  <button
-                    onClick={() => setDropdownOpen((v) => !v)}
-                    className="w-[30px] h-[30px] rounded-full bg-neutral-900 border border-neutral-800
-                               hover:border-[#e8ff47] text-[#e8ff47] text-[11px] font-medium font-mono
-                               flex items-center justify-center transition-all tracking-wider cursor-pointer"
-                    title={session?.user?.email ?? "Account"}
-                  >
+              <div className="flex flex-col items-center gap-6 w-full">
+                {/* User Info */}
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="w-16 h-16 rounded-full bg-landing-surface border border-landing-border flex items-center justify-center text-landing-accent text-xl font-medium shadow-landing-md overflow-hidden">
                     {session?.user?.image ? (
                       <Image
                         src={session.user.image}
                         alt={session.user.name || "User"}
-                        width={30}
-                        height={30}
-                        className="rounded-full object-cover"
+                        width={64}
+                        height={64}
+                        className="object-cover"
                       />
                     ) : (
                       initials
                     )}
-                  </button>
-
-                  {dropdownOpen && (
-                    <div className="absolute top-[calc(100%+8px)] right-0 w-52 bg-[#0f0f0f]
-                                    border border-neutral-800 rounded-xl overflow-hidden shadow-2xl
-                                    animate-in fade-in slide-in-from-top-1 duration-150">
-                      {/* User info */}
-                      <div className="px-3.5 py-3 border-b border-neutral-800">
-                        <p className="text-xs text-neutral-300 truncate mb-0.5 font-mono">
-                          {session?.user?.name ?? "User"}
-                        </p>
-                        <p className="text-[11px] text-neutral-600 truncate font-mono">
-                          {session?.user?.email}
-                        </p>
-                      </div>
-
-                      <div className="py-1">
-                        <Link href="/dashboard" className="dd-item">
-                          <span className="text-neutral-600 text-xs">◈</span> dashboard
-                        </Link>
-                        <button onClick={() => setIsModalOpen(true)} className="dd-item flex items-center gap-2">
-                          <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" /> new page
-                        </button>
-                        <Link href="/policy" className="dd-item">
-                          <span className="text-neutral-600 text-xs">⚖</span> privacy policy
-                        </Link>
-                      </div>
-
-                      <div className="h-px bg-neutral-800" />
-
-                      <div className="py-1">
-                        <button
-                          onClick={() => signOut({ callbackUrl: "/login" })}
-                          className="dd-item w-full text-left hover:!bg-red-950/40 hover:!text-red-400"
-                        >
-                          <span className="text-xs">→</span> sign out
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
+                  <div>
+                    <p className="text-lg font-instrument text-landing-ink">{session?.user?.name || "User"}</p>
+                    <p className="text-xs text-landing-ink-muted">{session?.user?.email}</p>
+                  </div>
                 </div>
-              </>
+
+                <div className="flex flex-col gap-3 w-full max-w-[240px]">
+                  <button
+                    onClick={() => {
+                        setMobileOpen(false);
+                        setIsModalOpen(true);
+                    }}
+                    className="flex items-center justify-center gap-2 bg-landing-accent text-white py-3 rounded-xl font-medium shadow-landing-sm hover:shadow-landing-md transition-all active:scale-95"
+                  >
+                    <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" />
+                    New Page
+                  </button>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="py-3 text-landing-ink-muted hover:text-red-500 font-medium transition-colors"
+                  >
+                    Sign Out →
+                  </button>
+                </div>
+              </div>
             ) : (
-              <div className="hidden sm:flex items-center gap-2">
-                <Link href="/login" className={navLinkClass("/login")}>
-                  sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-[#e8ff47] hover:bg-[#d4eb3a] text-black text-[11px]
-                             font-medium font-mono tracking-wider px-3.5 py-[7px]
-                             rounded-lg transition-all"
+              <div className="flex flex-col gap-4 w-full max-w-[240px]">
+                <Link 
+                  href="/login" 
+                  className="flex items-center justify-center py-3 text-landing-ink font-medium"
                 >
-                  get started
+                  Sign In
+                </Link>
+                <Link 
+                  href="/register" 
+                  className="flex items-center justify-center bg-landing-ink text-white py-4 rounded-xl font-medium shadow-landing-lg hover:bg-landing-accent transition-all animate-bounce-subtle"
+                >
+                  Start free →
                 </Link>
               </div>
             )}
-
-            {/* Hamburger — mobile only */}
-            <button
-              onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-[5px] cursor-pointer"
-              aria-label="Toggle menu"
-            >
-              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200 origin-center
-                ${mobileOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
-              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200
-                ${mobileOpen ? "opacity-0 scale-x-0" : ""}`} />
-              <span className={`block h-px w-5 bg-neutral-500 transition-all duration-200 origin-center
-                ${mobileOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile drawer */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-neutral-800/50 bg-[#080808]
-                          px-4 py-3 flex flex-col gap-1
-                          animate-in fade-in slide-in-from-top-2 duration-150">
-
-            {/* Nav links */}
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className={mobileLinkClass(link.href)}>
-                {link.label}
-              </Link>
-            ))}
-
-            {session ? (
-              <>
-                <Link href="/dashboard" className={mobileLinkClass("/dashboard")}>
-                  dashboard
-                </Link>
-
-                <div className="h-px bg-neutral-800/50 my-1" />
-
-                <button
-                  onClick={() => router.push("/")}
-                  className="flex items-center gap-2 text-xs px-3 py-2.5 rounded-lg font-mono
-                             text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900
-                             transition-all tracking-wide text-left w-full cursor-pointer"
-                >
-                  <span>+</span> new page
-                </button>
-
-                {/* User card */}
-                <div className="flex items-center gap-3 px-3 py-2.5 mt-1
-                                border border-neutral-800/60 rounded-lg">
-                  <div className="w-7 h-7 rounded-full bg-neutral-900 border border-neutral-800
-                                  text-[#e8ff47] text-[10px] font-mono flex items-center
-                                  justify-center flex-shrink-0">
-                    {session?.user?.image ? (
-                      <Image
-                        src={session.user.image}
-                        alt={session.user.name || "User"}
-                        width={28}
-                        height={28}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      initials
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-neutral-300 font-mono truncate">
-                      {session?.user?.name ?? "User"}
-                    </p>
-                    <p className="text-[11px] text-neutral-600 font-mono truncate">
-                      {session?.user?.email}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="text-xs px-3 py-2.5 rounded-lg font-mono text-neutral-600
-                             hover:text-red-400 hover:bg-red-950/20 transition-all
-                             tracking-wide text-left w-full cursor-pointer"
-                >
-                  → sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="h-px bg-neutral-800/50 my-1" />
-                <Link href="/login" className={mobileLinkClass("/login")}>
-                  sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="text-xs px-3 py-2.5 rounded-lg bg-[#e8ff47] text-black
-                             font-medium font-mono tracking-wider text-center transition-all"
-                >
-                  get started
-                </Link>
-              </>
-            )}
           </div>
         )}
-      </nav>
+      
 
         {isModalOpen && (
           <div 
@@ -284,44 +280,22 @@ export default function Navbar() {
               if (e.target === e.currentTarget) setIsModalOpen(false);
             }}
           >
-            <div className="w-full max-w-2xl bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-8 relative shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="w-full max-w-2xl bg-landing-bg border border-landing-border rounded-2xl p-8 relative shadow-landing-lg animate-in zoom-in-95 duration-200">
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 text-neutral-500 hover:text-white transition-colors cursor-pointer text-2xl"
+                className="absolute top-4 right-4 text-landing-ink-muted hover:text-landing-ink transition-colors cursor-pointer text-2xl"
               >
                 ×
               </button>
               <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-2 text-white" style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em" }}>Create New Project</h2>
-                <p className="text-sm text-neutral-400">Describe what you want to build and PageForge will generate it for you.</p>
+                <h2 className="text-2xl font-instrument mb-2 text-landing-ink tracking-tight">Create New Project</h2>
+                <p className="text-sm text-landing-ink-muted">Describe what you want to build and PageForge will generate it for you.</p>
               </div>
               <GenerateForm />
             </div>
           </div>
         )}
-      {/* Dropdown item base style — too complex for pure Tailwind inline */}
-      <style>{`
-        .dd-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 14px;
-          font-size: 12px;
-          color: #777;
-          transition: all 0.1s;
-          background: transparent;
-          border: none;
-          font-family: 'DM Mono', monospace;
-          letter-spacing: 0.02em;
-          text-decoration: none;
-          cursor: pointer;
-          width: 100%;
-        }
-        .dd-item:hover {
-          background: #161616;
-          color: #ccc;
-        }
-      `}</style>
+       
     </>
   );
 }
