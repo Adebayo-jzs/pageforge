@@ -23,7 +23,7 @@ export default {
       const isAuthPage = nextUrl.pathname.startsWith("/login") || 
                          nextUrl.pathname.startsWith("/register");
       const isPublicPage = nextUrl.pathname === "/" || 
-                           nextUrl.pathname.startsWith("/policy") || nextUrl.pathname.startsWith("/how-it-works");
+                           nextUrl.pathname.startsWith("/policy") || nextUrl.pathname.startsWith("/how-it-works") || nextUrl.pathname.startsWith("/pricing");
 
       if (isAuthPage) {
         if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));

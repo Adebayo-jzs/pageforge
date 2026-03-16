@@ -1,8 +1,10 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import CTA from "@/components/cta";
+import Footer from "@/components/footer";
 
 /* ─── Mockup components ─────────────────────────────── */
 
@@ -38,97 +40,48 @@ function PromptMockup() {
   }, [typed, typing, active]);
 
   return (
-    <div style={{
-      background: "#0a0a0a",
-      border: "1px solid #1e1e1e",
-      borderRadius: 16,
-      overflow: "hidden",
-      fontFamily: "'DM Mono', monospace",
-    }}>
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
       {/* Browser chrome */}
-      <div style={{
-        background: "#0d0d0d",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "10px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}>
-        <div style={{ display: "flex", gap: 5 }}>
+      <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
+        <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
-            <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+            <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
           ))}
         </div>
-        <div style={{
-          flex: 1, background: "#111", borderRadius: 5,
-          padding: "3px 10px", fontSize: 10, color: "#333", textAlign: "center",
-        }}>
-          pageforge.com
+        <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
+          pageforge.ai
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: 20 }}>
-        <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 22, fontWeight: 300, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.2 }}>
-            Page<span style={{ color: "#e8ff47" }}>Forge</span>
+      <div className="p-5 text-left">
+        <div className="mb-4">
+          <p className="font-instrument text-2xl text-landing-ink tracking-tight leading-none">
+            Page<span className="text-landing-accent">Forge</span>
           </p>
-          <p style={{ fontSize: 10, color: "#444", marginTop: 4 }}>Describe your product. Get a landing page.</p>
+          <p className="text-[0.65rem] text-landing-ink-muted mt-1">Describe your product. Get a landing page.</p>
         </div>
 
-        <div style={{
-          background: "#111",
-          border: "1px solid #2a2a2a",
-          borderRadius: 10,
-          overflow: "hidden",
-        }}>
-          <div style={{ padding: "12px 14px", minHeight: 64 }}>
-            <p style={{ fontSize: 11, color: "#ccc", lineHeight: 1.6 }}>
+        <div className="bg-white border border-landing-border rounded-lg overflow-hidden">
+          <div className="p-3 px-3.5 min-h-[64px]">
+            <p className="text-[0.7rem] text-landing-ink-muted leading-relaxed">
               {typed}
-              <span style={{
-                display: "inline-block",
-                width: 1.5,
-                height: 12,
-                background: "#e8ff47",
-                marginLeft: 1,
-                animation: "blink 1s step-end infinite",
-                verticalAlign: "middle",
-              }} />
+              <span className="inline-block w-[1.5px] h-3 bg-landing-accent ml-0.5 animate-blink-dot align-middle" />
             </p>
           </div>
-          <div style={{
-            borderTop: "1px solid #1a1a1a",
-            padding: "8px 14px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}>
-            <span style={{ fontSize: 10, color: "#333" }}>⌘ + Enter to submit</span>
-            <div style={{
-              background: "#e8ff47",
-              color: "#000",
-              borderRadius: 7,
-              padding: "4px 10px",
-              fontSize: 10,
-              fontWeight: 500,
-            }}>→</div>
+          <div className="border-t border-landing-border p-2 px-3.5 flex justify-between items-center">
+            <span className="text-[0.6rem] text-landing-ink-faint">⌘ + Enter to submit</span>
+            <div className="bg-landing-accent text-white rounded-md px-2.5 py-1 text-[0.65rem] font-medium">→</div>
           </div>
         </div>
 
         {/* Example chips */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 12 }}>
+        <div className="flex flex-wrap gap-1.5 mt-3">
           {["B2B SaaS", "Mobile App", "Dev Tool"].map((tag) => (
-            <span key={tag} style={{
-              fontSize: 9,
-              color: "#555",
-              border: "1px solid #1e1e1e",
-              borderRadius: 20,
-              padding: "3px 8px",
-            }}>{tag}</span>
+            <span key={tag} className="text-[0.6rem] text-landing-ink-muted border border-landing-border rounded-full px-2 py-0.5">{tag}</span>
           ))}
         </div>
       </div>
-      <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
     </div>
   );
 }
@@ -160,114 +113,57 @@ function GeneratingMockup() {
   }, [progress]);
 
   return (
-    <div style={{
-      background: "#0a0a0a",
-      border: "1px solid #1e1e1e",
-      borderRadius: 16,
-      overflow: "hidden",
-      fontFamily: "'DM Mono', monospace",
-    }}>
-      <div style={{
-        background: "#0d0d0d",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "10px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}>
-        <div style={{ display: "flex", gap: 5 }}>
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
+      <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
+        <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
-            <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+            <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
           ))}
         </div>
-        <div style={{ flex: 1, background: "#111", borderRadius: 5, padding: "3px 10px", fontSize: 10, color: "#333", textAlign: "center" }}>
-          pageforge.com/new
+        <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
+          pageforge.ai/new
         </div>
       </div>
 
-      <div style={{ padding: 20 }}>
+      <div className="p-5 text-left">
         {/* Split view */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <div className="grid grid-cols-2 gap-3 mb-4">
           {/* Left — status */}
           <div>
-            <p style={{ fontSize: 10, color: "#444", marginBottom: 10, letterSpacing: "0.08em", textTransform: "uppercase" }}>Status</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <p className="text-[0.6rem] text-landing-ink-faint mb-2.5 tracking-widest uppercase">Status</p>
+            <div className="flex flex-col gap-1.5">
               {steps.map((s, i) => (
-                <div key={s} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  <div style={{
-                    width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
-                    border: `1px solid ${i < step ? "#e8ff47" : i === step ? "#e8ff47" : "#222"}`,
-                    background: i < step ? "#e8ff47" : "transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    transition: "all 0.3s",
-                  }}>
-                    {i < step && <span style={{ fontSize: 7, color: "#000", fontWeight: 700 }}>✓</span>}
-                    {i === step && (
-                      <div style={{
-                        width: 5, height: 5, borderRadius: "50%",
-                        background: "#e8ff47",
-                        animation: "ping 1s ease-in-out infinite",
-                      }} />
-                    )}
+                <div key={s} className="flex items-center gap-2">
+                  <div className={`w-3.5 h-3.5 rounded-full flex-shrink-0 border flex items-center justify-center transition-all duration-300 ${i <= step ? 'border-landing-accent bg-landing-accent' : 'border-landing-border'}`}>
+                    {i < step ? <span className="text-[0.45rem] text-white font-bold">✓</span> : i === step ? <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> : null}
                   </div>
-                  <span style={{
-                    fontSize: 9,
-                    color: i < step ? "#666" : i === step ? "#ccc" : "#2a2a2a",
-                    transition: "color 0.3s",
-                  }}>{s}</span>
+                  <span className={`text-[0.6rem] transition-colors duration-300 ${i < step ? 'text-landing-ink-faint line-through' : i === step ? 'text-landing-ink font-medium' : 'text-landing-ink-muted'}`}>{s}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Right — preview skeleton */}
-          <div style={{
-            background: "#111",
-            border: "1px solid #1a1a1a",
-            borderRadius: 8,
-            padding: 10,
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}>
-            <p style={{ fontSize: 9, color: "#333", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>Preview</p>
+          <div className="bg-landing-bg border border-landing-border rounded-lg p-2.5 flex flex-col gap-1.5">
+            <p className="text-[0.55rem] text-landing-ink-faint tracking-widest uppercase mb-1">Preview</p>
             {/* Skeleton bars */}
             {[100, 70, 85, 50, 90, 60, 75].map((w, i) => (
-              <div key={i} style={{
-                height: i === 0 ? 10 : 5,
-                width: `${w}%`,
-                background: "#1a1a1a",
-                borderRadius: 3,
-                animation: `shimmer 1.5s ease-in-out infinite`,
-                animationDelay: `${i * 0.1}s`,
-                opacity: progress > i * 12 ? 1 : 0.2,
-                transition: "opacity 0.5s",
-              }} />
+              <div key={i} className={`h-${i === 0 ? '2' : '1'} rounded-sm bg-landing-ink/5 animate-pulse transition-opacity duration-500`} style={{ width: `${w}%`, animationDelay: `${i * 0.1}s`, opacity: progress > i * 12 ? 1 : 0.2 }} />
             ))}
           </div>
         </div>
 
         {/* Progress bar */}
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <span style={{ fontSize: 9, color: "#444" }}>Generating with Gemini 2.5 Flash</span>
-            <span style={{ fontSize: 9, color: "#e8ff47" }}>{Math.min(Math.round(progress), 100)}%</span>
+          <div className="flex justify-between mb-1.5">
+            <span className="text-[0.6rem] text-landing-ink-muted">Generating with pageforge AI</span>
+            <span className="text-[0.6rem] text-landing-accent font-semibold">{Math.min(Math.round(progress), 100)}%</span>
           </div>
-          <div style={{ height: 3, background: "#1a1a1a", borderRadius: 2, overflow: "hidden" }}>
-            <div style={{
-              height: "100%",
-              width: `${Math.min(progress, 100)}%`,
-              background: "#e8ff47",
-              borderRadius: 2,
-              transition: "width 0.1s linear",
-            }} />
+          <div className="h-[3px] bg-landing-border rounded-full overflow-hidden">
+            <div className="h-full bg-landing-accent transition-all duration-100 ease-linear" style={{ width: `${Math.min(progress, 100)}%` }} />
           </div>
         </div>
       </div>
-      <style>{`
-        @keyframes ping { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.6)} }
-        @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
-      `}</style>
     </div>
   );
 }
@@ -276,171 +172,99 @@ function PreviewMockup() {
   const [tab, setTab] = useState<"preview" | "code">("preview");
 
   return (
-    <div style={{
-      background: "#0a0a0a",
-      border: "1px solid #1e1e1e",
-      borderRadius: 16,
-      overflow: "hidden",
-      fontFamily: "'DM Mono', monospace",
-    }}>
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
       {/* Browser chrome */}
-      <div style={{
-        background: "#0d0d0d",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "10px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}>
-        <div style={{ display: "flex", gap: 5 }}>
+      <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
+        <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
-            <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+            <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
           ))}
         </div>
-        <div style={{ flex: 1, background: "#111", borderRadius: 5, padding: "3px 10px", fontSize: 10, color: "#555", textAlign: "center" }}>
+        <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
           your-page.html
         </div>
-        <div style={{
-          background: "#e8ff47",
-          color: "#000",
-          fontSize: 9,
-          fontWeight: 600,
-          padding: "3px 9px",
-          borderRadius: 5,
-          cursor: "pointer",
-        }}>
+        <div className="bg-landing-accent text-white text-[0.6rem] font-semibold px-2 py-0.5 rounded-md cursor-pointer">
           ↓ Download
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{
-        display: "flex",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "0 14px",
-      }}>
+      <div className="flex border-b border-landing-border px-3.5">
         {(["preview", "code"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            style={{
-              padding: "8px 12px",
-              fontSize: 10,
-              color: tab === t ? "#e8ff47" : "#444",
-              background: "transparent",
-              border: "none",
-              borderBottom: tab === t ? "1px solid #e8ff47" : "1px solid transparent",
-              cursor: "pointer",
-              fontFamily: "inherit",
-              letterSpacing: "0.04em",
-              marginBottom: -1,
-            }}
+            className={`py-2 px-3 text-[0.65rem] font-medium transition-all border-b-2 font-inherit cursor-pointer ${tab === t ? 'text-landing-accent border-landing-accent' : 'text-landing-ink-muted border-transparent hover:text-landing-ink'}`}
           >
             {t}
           </button>
         ))}
       </div>
 
-      <div style={{ padding: 14 }}>
+      <div className="p-3.5">
         {tab === "preview" ? (
-          /* Fake landing page preview */
-          <div style={{
-            background: "#030303",
-            border: "1px solid #111",
-            borderRadius: 8,
-            overflow: "hidden",
-          }}>
+          <div className="bg-[#fff] border border-landing-border rounded-lg overflow-hidden text-left">
             {/* Mock nav */}
-            <div style={{
-              background: "#050505",
-              borderBottom: "1px solid #111",
-              padding: "7px 12px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: "#fff" }}>InvoiceAI</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                {["Features","Pricing","Docs"].map((l) => (
-                  <span key={l} style={{ fontSize: 8, color: "#444" }}>{l}</span>
+            <div className="bg-white border-b border-landing-border p-2 px-3 flex justify-between items-center">
+              <span className="text-[0.6rem] font-bold text-landing-ink">Invoicex</span>
+              <div className="flex gap-2">
+                {["Features","Pricing"].map((l) => (
+                  <span key={l} className="text-[0.5rem] text-landing-ink-muted">{l}</span>
                 ))}
               </div>
-              <div style={{ background: "#6366f1", borderRadius: 4, padding: "3px 8px", fontSize: 8, color: "#fff" }}>
+              <div className="bg-landing-accent rounded-[3px] px-2 py-0.5 text-[0.5rem] text-white">
                 Start free
               </div>
             </div>
             {/* Mock hero */}
-            <div style={{ padding: "20px 12px", textAlign: "center" }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 6 }}>
-                Get Paid 3× Faster
+            <div className="p-5 text-center px-3">
+              <div className="font-instrument text-[1.1rem] text-landing-ink leading-tight mb-1.5">
+                Invoicing that feels like magic.
               </div>
-              <div style={{ fontSize: 8, color: "#888", marginBottom: 12, lineHeight: 1.5 }}>
-                AI-powered invoicing for freelancers.<br/>
+              <div className="text-[0.6rem] text-landing-ink-muted mb-3 leading-relaxed">
+                AI-powered billing for freelancers.<br/>
                 Create, send, and track in seconds.
               </div>
-              <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                <div style={{ background: "#6366f1", borderRadius: 5, padding: "5px 12px", fontSize: 8, color: "#fff" }}>Try for free</div>
-                <div style={{ border: "1px solid #333", borderRadius: 5, padding: "5px 12px", fontSize: 8, color: "#888" }}>See demo</div>
+              <div className="flex gap-1.5 justify-center">
+                <div className="bg-landing-accent rounded-full px-3 py-1 text-[0.55rem] text-white">Get Started</div>
+                <div className="border border-landing-border rounded-full px-3 py-1 text-[0.55rem] text-landing-ink-muted">Demo</div>
               </div>
             </div>
             {/* Mock features */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, padding: "0 12px 14px" }}>
+            <div className="grid grid-cols-3 gap-1.5 p-3 pt-0">
               {[
-                { icon: "⚡", title: "Instant invoices", desc: "Generate in 10s" },
-                { icon: "📊", title: "Live tracking", desc: "See who viewed" },
-                { icon: "🔁", title: "Auto reminders", desc: "Never chase again" },
+                { icon: "⚡", title: "Fast", desc: "10s gen" },
+                { icon: "📊", title: "Live", desc: "Track stats" },
+                { icon: "🔁", title: "Auto", desc: "Reminders" },
               ].map((f) => (
-                <div key={f.title} style={{
-                  background: "#0a0a0a",
-                  border: "1px solid #1a1a1a",
-                  borderRadius: 6,
-                  padding: "8px",
-                }}>
-                  <div style={{ fontSize: 12, marginBottom: 3 }}>{f.icon}</div>
-                  <div style={{ fontSize: 8, fontWeight: 600, color: "#ddd", marginBottom: 2 }}>{f.title}</div>
-                  <div style={{ fontSize: 7, color: "#555" }}>{f.desc}</div>
+                <div key={f.title} className="bg-landing-bg border border-landing-border rounded-lg p-2">
+                  <div className="text-[0.7rem] mb-0.5">{f.icon}</div>
+                  <div className="text-[0.55rem] font-bold text-landing-ink mb-0.5">{f.title}</div>
+                  <div className="text-[0.45rem] text-landing-ink-faint leading-tight">{f.desc}</div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          /* Code view */
-          <div style={{
-            background: "#030303",
-            border: "1px solid #111",
-            borderRadius: 8,
-            padding: "12px",
-            fontFamily: "'DM Mono', monospace",
-          }}>
-            {[
-              { indent: 0, color: "#666", text: "<!DOCTYPE html>" },
-              { indent: 0, color: "#888", text: '<html lang="en">' },
-              { indent: 1, color: "#888", text: "<head>" },
-              { indent: 2, color: "#6366f1", text: '<link rel="stylesheet" href="..." />' },
-              { indent: 1, color: "#888", text: "</head>" },
-              { indent: 1, color: "#888", text: "<body>" },
-              { indent: 2, color: "#e8ff47", text: "<nav> <!-- sticky nav --> </nav>" },
-              { indent: 2, color: "#e8ff47", text: "<section> <!-- hero --> </section>" },
-              { indent: 2, color: "#4ade80", text: "<section> <!-- features --> </section>" },
-              { indent: 2, color: "#4ade80", text: "<section> <!-- pricing --> </section>" },
-              { indent: 2, color: "#888", text: "<footer> ... </footer>" },
-              { indent: 1, color: "#888", text: "</body>" },
-              { indent: 0, color: "#888", text: "</html>" },
-            ].map((line, i) => (
-              <div key={i} style={{
-                display: "flex",
-                gap: 8,
-                padding: "1.5px 0",
-              }}>
-                <span style={{ fontSize: 8, color: "#2a2a2a", minWidth: 14, textAlign: "right", flexShrink: 0 }}>{i + 1}</span>
-                <span style={{
-                  fontSize: 8,
-                  color: line.color,
-                  paddingLeft: line.indent * 12,
-                  whiteSpace: "nowrap",
-                }}>{line.text}</span>
-              </div>
-            ))}
+          <div className="bg-landing-bg border border-landing-border rounded-lg p-3 text-left">
+             <div className="overflow-hidden space-y-0.5">
+              {[
+                { indent: 0, text: "<!DOCTYPE html>", color: "text-landing-ink-faint" },
+                { indent: 0, text: '<html lang="en">', color: "text-landing-ink-muted" },
+                { indent: 1, text: "<head>", color: "text-landing-ink-muted" },
+                { indent: 2, text: '<link rel="stylesheet" ... />', color: "text-landing-accent" },
+                { indent: 1, text: "</head>", color: "text-landing-ink-muted" },
+                { indent: 1, text: "<body>", color: "text-landing-ink-muted" },
+                { indent: 2, text: "<nav> ... </nav>", color: "text-landing-ink" },
+                { indent: 2, text: "<section> ... </section>", color: "text-landing-ink" },
+                { indent: 1, text: "</body>", color: "text-landing-ink-muted" },
+              ].map((line, i) => (
+                <div key={i} className="flex gap-2.5 text-[0.55rem]">
+                  <span className="text-landing-ink-faint w-3 text-right">{i + 1}</span>
+                  <span className={`${line.color}`} style={{ paddingLeft: line.indent * 10 }}>{line.text}</span>
+                </div>
+              ))}
+             </div>
           </div>
         )}
       </div>
@@ -452,94 +276,53 @@ function DashboardMockup() {
   const pages = [
     { prompt: "AI tool for B2B sales cold emails", provider: "gemini", time: "2m ago" },
     { prompt: "Notion-like app for engineering teams", provider: "openai", time: "1h ago" },
-    { prompt: "Carbon footprint tracker mobile app", provider: "gemini", time: "3h ago" },
     { prompt: "Invoicing SaaS for freelancers", provider: "gemini", time: "yesterday" },
   ];
 
   return (
-    <div style={{
-      background: "#0a0a0a",
-      border: "1px solid #1e1e1e",
-      borderRadius: 16,
-      overflow: "hidden",
-      fontFamily: "'DM Mono', monospace",
-    }}>
-      {/* Browser chrome */}
-      <div style={{
-        background: "#0d0d0d",
-        borderBottom: "1px solid #1a1a1a",
-        padding: "10px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}>
-        <div style={{ display: "flex", gap: 5 }}>
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
+      <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
+        <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
-            <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c, display: "block" }} />
+            <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
           ))}
         </div>
-        <div style={{ flex: 1, background: "#111", borderRadius: 5, padding: "3px 10px", fontSize: 10, color: "#555", textAlign: "center" }}>
-          pageforge.com/dashboard
+        <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
+          pageforge.ai/dashboard
         </div>
       </div>
 
-      <div style={{ padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+      <div className="p-4 text-left">
+        <div className="flex justify-between items-center mb-3.5">
           <div>
-            <p style={{ fontSize: 18, fontWeight: 300, color: "#fff", letterSpacing: "-0.03em" }}>Your Pages</p>
-            <p style={{ fontSize: 9, color: "#444", marginTop: 2 }}>{pages.length} pages generated</p>
+            <p className="font-instrument text-lg text-landing-ink tracking-tight leading-none">Your Pages</p>
+            <p className="text-[0.6rem] text-landing-ink-faint mt-1">{pages.length} pages generated</p>
           </div>
-          <div style={{
-            background: "#e8ff47", color: "#000",
-            fontSize: 9, fontWeight: 600,
-            padding: "5px 10px", borderRadius: 7, cursor: "pointer",
-          }}>
-            + New Page
+          <div className="bg-landing-accent text-white text-[0.6rem] font-bold px-2.5 py-1 rounded-md">
+            + New
           </div>
         </div>
 
-        {/* Page cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <div className="flex flex-col gap-1.5">
           {pages.map((p, i) => (
-            <div key={i} style={{
-              background: "#0d0d0d",
-              border: "1px solid #1a1a1a",
-              borderRadius: 9,
-              padding: "9px 12px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}>
-              <span style={{ fontSize: 9, color: "#2a2a2a", minWidth: 16, textAlign: "right" }}>
+            <div key={i} className="bg-white border border-landing-border rounded-lg p-2.5 flex items-center gap-2.5 shadow-sm">
+              <span className="text-[0.6rem] text-landing-ink-faint w-3 text-right">
                 {String(pages.length - i).padStart(2, "0")}
               </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 9, color: "#ccc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 4 }}>
+              <div className="flex-1 min-w-0">
+                <p className="text-[0.6rem] text-landing-ink font-medium truncate mb-0.5">
                   {p.prompt}
                 </p>
-                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  <span style={{
-                    fontSize: 8,
-                    padding: "1px 5px",
-                    borderRadius: 3,
-                    background: p.provider === "gemini" ? "#1a2a1a" : "#1a1a2a",
-                    color: p.provider === "gemini" ? "#4ade80" : "#818cf8",
-                    border: `1px solid ${p.provider === "gemini" ? "#1f3a1f" : "#1f1f3a"}`,
-                  }}>
+                <div className="flex gap-1.5 items-center">
+                  <span className={`text-[0.5rem] px-1 rounded-sm border uppercase font-bold tracking-wider ${p.provider === 'gemini' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
                     {p.provider}
                   </span>
-                  <span style={{ fontSize: 8, color: "#333" }}>{p.time}</span>
+                  <span className="text-[0.5rem] text-landing-ink-faint">{p.time}</span>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 4 }}>
+              <div className="flex gap-1">
                 {["◉","↓","×"].map((icon) => (
-                  <div key={icon} style={{
-                    width: 20, height: 20,
-                    background: "#1a1a1a",
-                    borderRadius: 5,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 9, color: "#555", cursor: "pointer",
-                  }}>
+                  <div key={icon} className="w-5 h-5 bg-landing-bg rounded-md flex items-center justify-center text-[0.6rem] text-landing-ink-muted cursor-pointer hover:bg-landing-accent hover:text-white transition-colors">
                     {icon}
                   </div>
                 ))}
@@ -554,12 +337,12 @@ function DashboardMockup() {
 
 /* ─── Main page ─────────────────────────────────────── */
 
-const steps = [
+const STEPS_DATA = [
   {
     number: "01",
     label: "Describe",
     title: "Tell us what you're building",
-    description: "Type a plain-English description of your product — what it does, who it's for, what makes it different. The more specific, the better the output. No templates, no forms.",
+    description: "Type a plain-English description of your product — what it does, who it's for, and what makes it different. The more specific, the better the output.",
     details: ["Works with any product category", "Supports 1-sentence to full paragraphs", "Example prompts to get you started"],
     mockup: <PromptMockup />,
   },
@@ -567,30 +350,29 @@ const steps = [
     number: "02",
     label: "Generate",
     title: "AI builds your page in seconds",
-    description: "Your prompt is sent to Gemini 2.5 Flash. If that fails, GPT-4o takes over automatically. The AI writes the copy, designs the layout, and outputs a complete, styled HTML file.",
-    details: ["Gemini 2.5 Flash as primary — fast and free", "Automatic GPT-4o fallback", "~15 seconds average generation time"],
+    description: "Your prompt is analyzed and mapped to high-conversion UI patterns. The AI handles the copy, selecting layouts, and styling everything automatically.",
+    details: ["Context-aware copy generation", "Intelligent layout selection", "~15 seconds generation time"],
     mockup: <GeneratingMockup />,
   },
   {
     number: "03",
     label: "Preview",
     title: "See it live, download instantly",
-    description: "Your page renders in a live preview panel the moment it's ready. Inspect the HTML, preview the design, and download the file — one self-contained HTML file, no dependencies.",
-    details: ["Full live iframe preview", "View raw HTML source", "One-click download"],
+    description: "Your page renders in a live preview panel. Inspect the design, preview the code, and download a single production-ready HTML file — no dependencies required.",
+    details: ["Real-time iframe preview", "Clean, self-contained HTML", "One-click local download"],
     mockup: <PreviewMockup />,
   },
   {
     number: "04",
     label: "Manage",
     title: "All your pages, in one place",
-    description: "Every page you generate is saved to your account. Revisit, re-download, or delete from your dashboard. Your generation history is always accessible.",
-    details: ["Saved automatically after generation", "Preview any past page instantly", "Delete what you don't need"],
+    description: "Every page you generate is saved to your secure dashboard. Revisit your history, re-download past projects, or refine your workflow at any time.",
+    details: ["Automatic history logging", "Permanent project storage", "Quick-action dashboard"],
     mockup: <DashboardMockup />,
   },
 ];
 
 export default function HowItWorksPage() {
-  const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -599,7 +381,7 @@ export default function HowItWorksPage() {
       if (!ref) return null;
       const obs = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setActiveStep(i); },
-        { threshold: 0.5 }
+        { threshold: 0.5, rootMargin: "-10% 0px -40% 0px" }
       );
       obs.observe(ref);
       return obs;
@@ -608,96 +390,42 @@ export default function HowItWorksPage() {
   }, []);
 
   return (
-    <>
-    <Navbar/>
-    
-    <main style={{
-      minHeight: "100vh",
-      background: "#080808",
-      color: "#ccc",
-      fontFamily: "'DM Mono', monospace",
-    }}>
+    <div className="bg-landing-bg text-landing-ink font-dmsans overflow-x-hidden min-h-screen">
+      <Navbar />
       
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
-        .grid-bg {
-          position: absolute; inset: 0;
-          background-image: linear-gradient(#141414 1px, transparent 1px), linear-gradient(90deg, #141414 1px, transparent 1px);
-          background-size: 48px 48px;
-          opacity: 0.4; pointer-events: none;
-        }
-        .step-dot { transition: all 0.3s; }
-        .cta-btn {
-          background: #e8ff47; color: #000;
-          border: none; border-radius: 10px;
-          padding: 12px 24px; font-size: 13px; font-weight: 500;
-          font-family: 'DM Mono', monospace;
-          cursor: pointer; letter-spacing: 0.03em; transition: all 0.15s;
-          text-decoration: none; display: inline-block;
-        }
-        .cta-btn:hover { background: #d4eb3a; }
-        .cta-btn:active { transform: scale(0.97); }
-        @media (max-width: 768px) {
-          .step-grid { grid-template-columns: 1fr !important; }
-          .step-grid > div:first-child { order: 2; }
-          .step-grid > div:last-child { order: 1; }
-          .sticky-progress { display: none !important; }
-        }
-      `}</style>
-
       {/* Hero */}
-      <section style={{ position: "relative", overflow: "hidden", borderBottom: "1px solid #111" }}>
-        <div className="grid-bg" />
-        <div style={{ position: "relative", maxWidth: 1100, margin: "0 auto", padding: "80px 32px 72px" }}>
-          <div style={{ maxWidth: 560 }}>
-            <p style={{ fontSize: 11, color: "#444", letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>
+      <section className="relative overflow-hidden border-b border-landing-border bg-white/40 pt-20">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#1A1714_1px,transparent_1px)] bg-[size:32px_32px]" />
+        <div className="relative max-w-[1100px] mx-auto px-8 py-20 pb-16 text-left">
+          <div className="max-w-[600px]">
+            <p className="text-[0.75rem] font-bold tracking-[0.12em] uppercase text-landing-accent mb-6 flex items-center gap-3 before:w-5 before:h-[2px] before:bg-landing-accent before:rounded-full">
               How it works
             </p>
-            <h1 style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: "clamp(48px, 8vw, 80px)",
-              color: "#fff",
-              letterSpacing: "0.02em",
-              lineHeight: 1,
-              marginBottom: 20,
-            }}>
-              Prompt to<br />
-              <span style={{ color: "#e8ff47" }}>landing page</span><br />
+            <h1 className="font-instrument text-[clamp(2.5rem,8vw,5.5rem)] leading-none tracking-tight text-landing-ink mb-8">
+              Prompt to <br />
+              <em className="italic text-landing-accent not-italic">landing page</em><br />
               in 4 steps.
             </h1>
-            <p style={{ fontSize: 13, color: "#555", lineHeight: 1.8, maxWidth: 420, marginBottom: 32 }}>
+            <p className="text-[1.05rem] text-landing-ink-muted leading-[1.8] max-w-[480px] mb-10 font-[350]">
               No Figma. No dev time. No templates to wrestle with. Just describe your product and get a production-ready HTML page.
             </p>
-            <Link href="/register" className="cta-btn">
+            <Link href="/register" className="inline-flex items-center bg-landing-ink text-white rounded-full px-8 py-4 text-base font-medium transition-all hover:bg-landing-accent hover:-translate-y-1 shadow-landing-md">
               Try it free →
             </Link>
           </div>
 
-          {/* Step pills */}
-          <div style={{ display: "flex", gap: 8, marginTop: 48, flexWrap: "wrap" }}>
-            {steps.map((s, i) => (
+          {/* Nav Pills */}
+          <div className="flex gap-2.5 mt-16 flex-wrap relative z-10">
+            {STEPS_DATA.map((s, i) => (
               <button
                 key={s.number}
                 onClick={() => {
                   setActiveStep(i);
                   stepRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" });
                 }}
-                style={{
-                  background: activeStep === i ? "#0d0d00" : "transparent",
-                  border: `1px solid ${activeStep === i ? "#2a2a00" : "#1e1e1e"}`,
-                  borderRadius: 20,
-                  padding: "6px 14px",
-                  fontSize: 11,
-                  color: activeStep === i ? "#e8ff47" : "#444",
-                  fontFamily: "'DM Mono', monospace",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 7,
-                }}
+                className={`flex items-center gap-2.5 px-5 py-2.5 text-[0.8rem] font-semibold font-inherit cursor-pointer transition-all rounded-full border ${activeStep === i ? 'bg-landing-accent border-landing-accent text-white shadow-landing-sm' : 'bg-white border-landing-border text-landing-ink-muted hover:border-landing-accent hover:text-landing-accent'}`}
               >
-                <span style={{ fontSize: 9, color: activeStep === i ? "#e8ff47" : "#333" }}>{s.number}</span>
+                <span className={`text-[0.75rem] ${activeStep === i ? 'text-white/80' : 'text-landing-accent/50'}`}>{s.number}</span>
                 {s.label}
               </button>
             ))}
@@ -705,92 +433,47 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* Steps */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 32px" }}>
-        {steps.map((step, i) => (
+      {/* Steps Content */}
+      <div className="max-w-[1100px] mx-auto px-8">
+        {STEPS_DATA.map((step, i) => (
           <div
             key={step.number}
             ref={(el) => { stepRefs.current[i] = el; }}
-            style={{
-              padding: "80px 0",
-              borderBottom: i < steps.length - 1 ? "1px solid #111" : "none",
-            }}
+            className={`py-24 border-b border-landing-border last:border-none reveal ${activeStep === i ? 'visible' : ''}`}
           >
-            <div
-              className="step-grid"
-              style={{
-                display: "grid",
-                gridTemplateColumns: i % 2 === 0 ? "1fr 1fr" : "1fr 1fr",
-                gap: 64,
-                alignItems: "center",
-              }}
-            >
+            <div className={`grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center`}>
               {/* Text side */}
-              <div style={{ order: i % 2 === 0 ? 1 : 2 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-                  <span style={{
-                    fontFamily: "'Bebas Neue', sans-serif",
-                    fontSize: 56,
-                    color: "#1a1a1a",
-                    lineHeight: 1,
-                    letterSpacing: "0.02em",
-                  }}>{step.number}</span>
-                  <div style={{ height: 1, flex: 1, background: "#1a1a1a" }} />
-                  <span style={{
-                    fontSize: 10,
-                    color: "#e8ff47",
-                    background: "#0d0d00",
-                    border: "1px solid #2a2a00",
-                    borderRadius: 20,
-                    padding: "3px 10px",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                  }}>
+              <div className={`${i % 2 === 0 ? 'md:order-1' : 'md:order-2'} text-left`}>
+                <div className="flex items-center gap-4 mb-8">
+                  <span className="font-instrument text-6xl text-landing-accent/10 leading-none tracking-tight">{step.number}</span>
+                  <div className="h-px flex-1 bg-landing-border" />
+                  <span className="text-[0.7rem] bg-landing-accent/10 text-landing-accent px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                     {step.label}
                   </span>
                 </div>
 
-                <h2 style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: "clamp(28px, 4vw, 40px)",
-                  color: "#fff",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1.1,
-                  marginBottom: 16,
-                }}>
+                <h2 className="font-instrument text-[clamp(1.8rem,4vw,2.8rem)] text-landing-ink tracking-tight leading-tight mb-6">
                   {step.title}
                 </h2>
 
-                <p style={{
-                  fontSize: 13,
-                  color: "#555",
-                  lineHeight: 1.9,
-                  marginBottom: 28,
-                }}>
+                <p className="text-[1.05rem] text-landing-ink-muted leading-relaxed font-[350] mb-8">
                   {step.description}
                 </p>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div className="space-y-4">
                   {step.details.map((d) => (
-                    <div key={d} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <span style={{
-                        width: 16, height: 16,
-                        borderRadius: "50%",
-                        background: "#0d0d00",
-                        border: "1px solid #2a2a00",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        flexShrink: 0, marginTop: 1,
-                      }}>
-                        <span style={{ fontSize: 7, color: "#e8ff47" }}>✓</span>
-                      </span>
-                      <span style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{d}</span>
+                    <div key={d} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-landing-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
+                        <span className="text-[0.7rem] text-landing-accent font-bold">✓</span>
+                      </div>
+                      <span className="text-[0.95rem] text-landing-ink-muted leading-relaxed font-[350]">{d}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Mockup side */}
-              <div style={{ order: i % 2 === 0 ? 2 : 1 }}>
+              <div className={`${i % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}>
                 {step.mockup}
               </div>
             </div>
@@ -798,94 +481,9 @@ export default function HowItWorksPage() {
         ))}
       </div>
 
-      {/* Bottom CTA */}
-      <section style={{
-        borderTop: "1px solid #111",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        <div className="grid-bg" />
-        <div style={{
-          position: "relative",
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: "80px 32px",
-          textAlign: "center",
-        }}>
-          <div style={{ width: 32, height: 2, background: "#e8ff47", margin: "0 auto 24px" }} />
-          <h2 style={{
-            fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: "clamp(36px, 6vw, 64px)",
-            color: "#fff",
-            letterSpacing: "0.02em",
-            lineHeight: 1.1,
-            marginBottom: 16,
-          }}>
-            Ready to build your<br />
-            <span style={{ color: "#e8ff47" }}>landing page?</span>
-          </h2>
-          <p style={{ fontSize: 13, color: "#444", marginBottom: 36 }}>
-            No credit card. No setup. Just your product description.
-          </p>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/register" className="cta-btn">
-              Start for free →
-            </Link>
-            <button
-              onClick={() => router.push("/")}
-              style={{
-                background: "transparent",
-                border: "1px solid #222",
-                borderRadius: 10,
-                padding: "12px 24px",
-                fontSize: 13,
-                color: "#555",
-                fontFamily: "'DM Mono', monospace",
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.borderColor = "#444")}
-              onMouseOut={(e) => (e.currentTarget.style.borderColor = "#222")}
-            >
-              See a demo
-            </button>
-          </div>
-
-          {/* Stats row */}
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 48,
-            marginTop: 56,
-            paddingTop: 40,
-            borderTop: "1px solid #111",
-            flexWrap: "wrap",
-          }}>
-            {[
-              { n: "~15s", label: "avg generation time" },
-              { n: "2", label: "AI providers" },
-              { n: "100%", label: "yours to keep" },
-              { n: "Free", label: "to get started" },
-            ].map((s) => (
-              <div key={s.label} style={{ textAlign: "center" }}>
-                <p style={{
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: 32,
-                  color: "#e8ff47",
-                  letterSpacing: "0.03em",
-                  lineHeight: 1,
-                }}>
-                  {s.n}
-                </p>
-                <p style={{ fontSize: 10, color: "#333", marginTop: 4, letterSpacing: "0.06em" }}>
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
-    </>
+      
+      <CTA/>
+      <Footer/>
+    </div>
   );
 }

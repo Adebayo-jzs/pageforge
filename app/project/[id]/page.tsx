@@ -11,26 +11,23 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useState, useRef, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import TextIcon from "@/components/texticon";
 
 type Tab = "preview" | "code";
 
 export default function Workspace({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  
-  // React 19 / Next 15 compatible param unwrapping
   const resolvedParams = use(params);
   const { id } = resolvedParams;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // Project data
   const [prompt, setPrompt] = useState("");
   const [html, setHtml] = useState("");
   const [provider, setProvider] = useState("");
   const [createdAt, setCreatedAt] = useState("");
 
-  // Editor states
   const [activeTab, setActiveTab] = useState<Tab>("preview");
   const [editableCode, setEditableCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -39,7 +36,6 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
 
-  // Fetch initial project data
   useEffect(() => {
     async function loadProject() {
       try {
@@ -66,7 +62,6 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
     setError("");
     
     try {
-      // Re-generate using the existing prompt
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,15 +71,11 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      // We have new code! Update it. We don't overwrite the ID,
-      // we'll update the existing document or just reload it in the UI.
-      // For simplicity right now, let's just update the local editor.
       setHtml(data.html);
       setEditableCode(data.html);
       setProvider(data.provider);
       setActiveTab("preview");
       
-      // Update the document in MongoDB with the new HTML
       await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -112,9 +103,8 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     if (activeTab === "preview" && editableCode && editableCode !== html) {
       setHtml(editableCode);
-      // Optional: automatically save to DB here when they switch back to preview
     }
-  }, [activeTab]);
+  }, [activeTab, editableCode, html]);
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(editableCode);
@@ -141,20 +131,20 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
 
   if (loading) {
     return (
-      <main className="flex h-screen bg-neutral-950 items-center justify-center">
-        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-[#e8ff47] w-8 h-8" />
+      <main className="flex h-screen bg-landing-bg items-center justify-center">
+        <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-landing-accent/40 w-12 h-12" />
       </main>
     );
   }
 
   if (error && !html) {
     return (
-      <main className="flex flex-col items-center justify-center min-h-screen bg-neutral-950 px-6">
-        <div className="bg-red-950 border border-red-900 rounded-lg p-6 max-w-md text-center">
-          <p className="text-red-400 font-semibold mb-4">{error}</p>
+      <main className="flex flex-col items-center justify-center min-h-screen bg-landing-bg px-6 font-dmsans">
+        <div className="bg-white border border-landing-border rounded-2xl p-8 max-w-md text-center shadow-landing-md">
+          <p className="text-red-500 font-bold mb-6 text-sm">Error: {error}</p>
           <button 
             onClick={() => router.push("/")}
-            className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-300 hover:bg-neutral-800"
+            className="w-full py-3 bg-landing-ink text-white rounded-full font-bold hover:bg-landing-accent transition-all cursor-pointer"
           >
             Return Home
           </button>
@@ -164,59 +154,71 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
   }
 
   return (
-    <main className="flex h-screen bg-neutral-950 text-neutral-100 font-sans overflow-hidden">
-      {/* ───── Left panel (Prompt History / Context) ───── */}
-      <aside className="w-80 lg:w-96 border-r border-neutral-800 flex flex-col overflow-y-auto bg-neutral-950 shrink-0">
-        <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-900/40">
-          <button onClick={() => router.push("/")} className="text-neutral-400 hover:text-white transition-colors">
-            ← Home
+    <main className="flex h-screen bg-landing-bg text-landing-ink font-dmsans overflow-hidden">
+      {/* ───── Left panel (Workspace) ───── */}
+      <aside className="w-80 lg:w-[400px] border-r border-landing-border flex flex-col bg-white/40 backdrop-blur-sm shrink-0">
+        <div className="p-6 border-b border-landing-border flex justify-between items-center bg-white/40">
+          <button 
+            onClick={() => router.push("/dashboard")} 
+            className="text-[0.65rem] font-bold text-landing-ink-faint uppercase tracking-[0.2em] hover:text-landing-accent transition-colors cursor-pointer"
+          >
+            ← Dashboard
           </button>
-          <h2 className="text-sm font-semibold text-neutral-300 tracking-wide uppercase">Workspace</h2>
+          <div className="scale-75 origin-right">
+            <TextIcon/>
+          </div>
         </div>
 
-        <div className="flex-1 p-6 flex flex-col gap-6">
-          {/* Prompt History block */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400">Prompt Context</h3>
+        <div className="flex-1 p-8 flex flex-col gap-10 overflow-y-auto">
+          {/* Prompt block */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-landing-accent animate-pulse shadow-[0_0_8px_rgba(26,23,20,0.4)]"></div>
+              <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">Project Vision</h3>
             </div>
             
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 shadow-sm relative group">
-              <div className="max-h-64 overflow-y-auto pr-2 custom-scrollbar text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
-                {prompt}
+            <div className="bg-white/80 border border-landing-border rounded-2xl p-6 shadow-landing-sm hover:shadow-landing-md transition-shadow">
+              <div className="max-h-64 overflow-y-auto pr-2 custom-scrollbar text-sm text-landing-ink-muted leading-relaxed font-[350] italic">
+                "{prompt}"
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
-              <span className="text-[11px] text-neutral-500 font-medium">
-                Model: <span className="text-neutral-300 capitalize">{provider}</span>
-              </span>
-              <span className="text-[11px] text-neutral-500 font-medium">
-                Created: <span className="text-neutral-300">{new Date(createdAt).toLocaleDateString()}</span>
-              </span>
+            <div className="flex flex-wrap gap-4 pt-1">
+              <div className="px-3 py-1 bg-landing-bg rounded-lg">
+                <span className="text-[10px] text-landing-ink-faint font-bold uppercase tracking-widest">
+                  AI: <span className="text-landing-accent">{provider}</span>
+                </span>
+              </div>
+              <div className="px-3 py-1 bg-landing-bg rounded-lg">
+                <span className="text-[10px] text-landing-ink-faint font-bold uppercase tracking-widest">
+                  Date: <span className="text-landing-ink-muted">{new Date(createdAt).toLocaleDateString()}</span>
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="h-px bg-neutral-800/60 my-2"></div>
+          <div className="h-px bg-landing-border" />
 
-          {/* Regenerate Action */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400">Actions</h3>
+          {/* Actions */}
+          <div className="space-y-4">
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">Refinement</h3>
             <button
               onClick={regenerate}
               disabled={isRegenerating}
-              className="w-full bg-[#e8ff47] text-black font-bold py-3 rounded-xl
-                         disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[#e8ff47]/5
-                         hover:bg-[#e8ff47]/50 transition-colors text-sm flex items-center justify-center gap-2"
+              className="w-full bg-landing-accent text-white font-bold py-4 rounded-full
+                         disabled:opacity-40 disabled:cursor-not-allowed shadow-landing-md
+                         hover:bg-landing-accent/90 hover:-translate-y-0.5 transition-all text-sm flex items-center justify-center gap-3 cursor-pointer"
             >
               {isRegenerating ? (
                 <>
                   <HugeiconsIcon icon={ReloadIcon} className="animate-spin w-4 h-4" />
-                  Generating New Version...
+                  Regenerating...
                 </>
               ) : (
-                "Regenerate Design"
+                <>
+                  <HugeiconsIcon icon={ReloadIcon} className="w-4 h-4" />
+                  Regenerate Design
+                </>
               )}
             </button>
             
@@ -225,105 +227,100 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
                 const p = new URLSearchParams({ prompt: prompt.split('\n\n')[0] });
                 router.push(`/new?${p.toString()}`);
               }}
-              className="w-full border border-neutral-700 text-neutral-300 font-medium py-3 rounded-xl
-                         hover:bg-neutral-800 transition-colors text-sm"
+              className="w-full border border-landing-border text-landing-ink-muted font-bold py-4 rounded-full
+                         hover:bg-white transition-all text-sm shadow-landing-sm cursor-pointer"
             >
-              Start New Flow With Prompt
+              Start New Concept
             </button>
           </div>
 
-          <div className="h-px bg-neutral-800/60 my-2"></div>
+          <div className="h-px bg-landing-border" />
 
-          {/* Share Block */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400">Share Link</h3>
-            </div>
-            <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-lg p-1.5 pl-3">
+          {/* Sharing */}
+          <div className="space-y-4">
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">Public Link</h3>
+            <div className="flex items-center gap-2 bg-white border border-landing-border rounded-xl p-2 pl-4 shadow-landing-sm">
               <input 
                 type="text" 
                 readOnly 
                 value={`${typeof window !== "undefined" ? window.location.origin : ""}/p/${id}`}
-                className="flex-1 bg-transparent text-xs text-neutral-400 outline-none truncate"
+                className="flex-1 bg-transparent text-xs text-landing-ink-faint outline-none truncate font-[350]"
               />
               <button 
                 onClick={copyLink}
                 title="Copy Link"
-                className="p-2 bg-neutral-800 rounded hover:bg-neutral-700 hover:text-white transition-colors text-neutral-400"
+                className="p-3 bg-landing-bg rounded-lg hover:bg-landing-accent hover:text-white transition-all text-landing-ink-muted cursor-pointer"
               >
-                {copied ? <HugeiconsIcon icon={CopyCheckIcon} className="w-3 h-3 text-green-400" /> : <HugeiconsIcon icon={Link01Icon} className="w-3 h-3" />}
+                {copied ? <HugeiconsIcon icon={CopyCheckIcon} className="w-3.5 h-3.5" /> : <HugeiconsIcon icon={Link01Icon} className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+            <p className="text-[10px] text-landing-ink-faint italic px-1 leading-relaxed">Generated pages are public by default. Share this link with your team or clients.</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* ───── Right panel (Canvas) ───── */}
+      <div className="flex-1 flex flex-col bg-white">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-landing-border bg-white/80 backdrop-blur-md">
+          <div className="flex gap-2 items-center">
+            <div className="flex gap-1.5 mr-4">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f57]/20 border border-[#ff5f57]/30" />
+              <span className="w-3 h-3 rounded-full bg-[#febc2e]/20 border border-[#febc2e]/30" />
+              <span className="w-3 h-3 rounded-full bg-[#28c840]/20 border border-[#28c840]/30" />
+            </div>
+            {/* Tabs */}
+            <div className="flex bg-landing-bg rounded-full p-1 border border-landing-border">
+              <button
+                onClick={() => setActiveTab("preview")}
+                className={`px-6 py-2 rounded-full flex items-center gap-2 text-xs font-bold transition-all ${
+                  activeTab === "preview"
+                    ? "bg-white text-landing-ink shadow-landing-sm"
+                    : "text-landing-ink-faint hover:text-landing-ink"
+                }`}
+              >
+                <HugeiconsIcon icon={ViewIcon} className="w-4 h-4" /> {activeTab === "preview"?"Preview":""}
+              </button>
+              <button
+                onClick={() => setActiveTab("code")}
+                className={`px-6 py-2 rounded-full flex items-center gap-2 text-xs font-bold transition-all ${
+                  activeTab === "code"
+                    ? "bg-white text-landing-ink shadow-landing-sm"
+                    : "text-landing-ink-faint hover:text-landing-ink"
+                }`}
+              >
+                <HugeiconsIcon icon={CodeSimpleIcon} className="w-4 h-4" /> {activeTab === "code"?"Code":""}
               </button>
             </div>
           </div>
 
-        </div>
-      </aside>
-
-      {/* ───── Right panel (Code / Preview) ───── */}
-      <div className="flex-1 flex flex-col bg-[#0d1117]">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-800 bg-[#0d1117]">
-          <div className="flex gap-1.5 items-center mr-6">
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <span className="w-3 h-3 rounded-full bg-green-500/80" />
-          </div>
-
-          {/* Tabs */}
-          <div className="flex bg-neutral-900 rounded-lg p-1 shadow-inner border border-neutral-800/60">
-            <button
-              onClick={() => setActiveTab("preview")}
-              className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-xs font-semibold transition-all ${
-                activeTab === "preview"
-                  ? "bg-neutral-700 text-white shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-300"
-              }`}
-            >
-              <HugeiconsIcon icon={ViewIcon} className="w-4 h-4" /> Preview
-            </button>
-            <button
-              onClick={() => setActiveTab("code")}
-              className={`px-4 py-1.5 rounded-md flex items-center gap-2 text-xs font-semibold transition-all ${
-                activeTab === "code"
-                  ? "bg-neutral-700 text-white shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-300"
-              }`}
-            >
-              <HugeiconsIcon icon={CodeSimpleIcon} className="w-4 h-4" /> Code
-            </button>
-          </div>
-
-          <div className="flex gap-2 ml-auto">
+          <div className="flex gap-3">
             {/* Download */}
             <button
               onClick={downloadHtml}
-              title="Download HTML"
-              className="text-xs bg-neutral-800/80 text-neutral-300 border border-neutral-700/50
-                         hover:text-[#e8ff47] px-3 py-1.5 rounded-lg hover:bg-neutral-800
-                         transition-all flex items-center gap-1.5"
+              className="bg-landing-bg text-landing-ink-muted border border-landing-border
+                         hover:text-white hover:bg-landing-ink px-4 py-2 rounded-full
+                         transition-all flex items-center gap-2 text-xs font-bold cursor-pointer shadow-landing-sm"
             >
               <HugeiconsIcon icon={Download01Icon} className="w-4 h-4" />
+              <span className="hidden sm:inline">Export HTML</span>
             </button>
             
-            {/* Copy Code */}
-            {activeTab === "code" && (
+            {/* Actions based on tab */}
+            {activeTab === "code" ? (
               <button
                 onClick={copyCode}
-                className="text-xs bg-neutral-800/80 text-neutral-300 border border-neutral-700/50
-                           px-3 py-1.5 rounded-lg hover:bg-neutral-800
-                           transition-all flex items-center gap-1.5"
+                className="bg-landing-accent text-white px-4 py-2 rounded-full
+                           transition-all flex items-center gap-2 text-xs font-bold cursor-pointer shadow-landing-md hover:bg-landing-accent/90"
               >
-                {copied && activeTab === "code" ? (
-                  <HugeiconsIcon icon={CopyCheckIcon} className="w-4 h-4 text-green-400" />
+                {copied ? (
+                  <HugeiconsIcon icon={CopyCheckIcon} className="w-4 h-4" />
                 ) : (
                   <HugeiconsIcon icon={CopyIcon} className="w-4 h-4" />
                 )}
-                <span className="hidden sm:inline font-medium">Copy Code</span>
+                <span>Copy Code</span>
               </button>
-            )}
-
-            {/* Reload Preview */}
-            {activeTab === "preview" && (
+            ) : (
               <button
                 onClick={() => {
                   if (iframeRef.current) {
@@ -333,23 +330,26 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
                     doc.close();
                   }
                 }}
-                className="text-xs bg-neutral-800/80 text-neutral-300 border border-neutral-700/50
-                           px-3 py-1.5 rounded-lg hover:bg-neutral-800
-                           transition-all flex items-center gap-1.5"
+                className="bg-landing-bg text-landing-ink-muted border border-landing-border
+                           hover:bg-white px-4 py-2 rounded-full
+                           transition-all flex items-center gap-2 text-xs font-bold cursor-pointer shadow-landing-sm"
               >
                 <HugeiconsIcon icon={ReloadIcon} className="w-4 h-4" />
-                <span className="hidden sm:inline font-medium">Refresh</span>
+                <span>Refresh View</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Content area */}
-        <div className="flex-1 relative overflow-hidden bg-white">
+        <div className="flex-1 relative overflow-hidden bg-landing-bg">
           {isRegenerating && (
-             <div className="absolute inset-0 z-50 bg-neutral-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-neutral-200">
-               <HugeiconsIcon icon={ReloadIcon} className="animate-spin text-[#e8ff47] w-10 h-10 mb-4" />
-               <p className="font-bold tracking-wide">Rebuilding Code...</p>
+             <div className="absolute inset-0 z-50 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center text-landing-ink">
+               <div className="relative mb-6">
+                 <div className="w-16 h-16 border-4 border-landing-accent/20 rounded-full" />
+                 <div className="absolute inset-0 border-4 border-landing-accent border-t-transparent rounded-full animate-spin" />
+               </div>
+               <p className="font-instrument text-3xl tracking-tight">Updating masterpiece...</p>
              </div>
           )}
           
@@ -357,20 +357,20 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
           <div className={activeTab === "preview" ? "w-full h-full block" : "hidden"}>
             <iframe
               ref={iframeRef}
-              className="w-full h-full border-none bg-white"
+              className="w-full h-full border-none bg-white shadow-landing-2xl"
               title="Preview"
               sandbox="allow-scripts allow-same-origin"
             />
           </div>
 
           {/* Code tab */}
-          <div className={activeTab === "code" ? "absolute inset-0 flex flex-col bg-[#0d1117]" : "hidden"}>
+          <div className={activeTab === "code" ? "absolute inset-0 flex flex-col bg-[#1A1714]" : "hidden"}>
             <div className="flex-1 flex overflow-hidden">
               <div
                 ref={lineNumRef}
-                className="select-none text-right pr-4 pl-4 pt-4 pb-4 text-neutral-600/60
-                           text-xs leading-6 font-mono border-r border-neutral-800/60
-                           bg-[#0d1117] overflow-hidden shrink-0"
+                className="select-none text-right pr-6 pl-4 pt-6 pb-6 text-[#4A4541]
+                           text-xs leading-6 font-mono border-r border-[#2A2521]
+                           bg-[#1A1714] overflow-hidden shrink-0"
               >
                 {editableCode.split("\n").map((_, i) => (
                   <div key={i}>{i + 1}</div>
@@ -378,9 +378,9 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
               </div>
 
               <textarea
-                className="flex-1 bg-transparent text-neutral-300 text-xs leading-6
-                           font-mono p-4 outline-none resize-none min-w-0
-                           selection:bg-[#e8ff47]/20 overflow-auto"
+                className="flex-1 bg-transparent text-[#E6E2DF] text-xs leading-6
+                           font-mono p-6 outline-none resize-none min-w-0
+                           selection:bg-landing-accent/30 overflow-auto"
                 value={editableCode}
                 onChange={(e) => setEditableCode(e.target.value)}
                 onScroll={(e) => {
@@ -393,15 +393,15 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
               />
             </div>
 
-            <div className="flex items-center justify-between px-5 py-2.5 border-t border-neutral-800
-                            bg-[#161b22] text-xs text-neutral-500">
+            <div className="flex items-center justify-between px-6 py-3 border-t border-[#2A2521]
+                            bg-[#141210] text-[10px] font-bold uppercase tracking-widest text-[#4A4541]">
               <span className="font-mono">
                 {editableCode.split("\n").length} lines · {(editableCode.length / 1024).toFixed(1)} KB
               </span>
               {editableCode !== html && (
-                <span className="flex items-center gap-2 font-medium text-[#e8ff47]/80">
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-                  Modified visually. Switch to Preview to render.
+                <span className="flex items-center gap-2 text-landing-accent">
+                  <span className="w-1.5 h-1.5 rounded-full bg-landing-accent animate-pulse" />
+                  Visual unsynced · Switch to Preview to render
                 </span>
               )}
             </div>
