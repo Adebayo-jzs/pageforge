@@ -54,10 +54,14 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
+    const updateData: any = { provider: body.provider };
+    if (body.html !== undefined) updateData.html = body.html;
+    if (body.pages !== undefined) updateData.pages = body.pages;
+
     await dbConnect();
     const project = await Project.findOneAndUpdate(
       { _id: id, userId },
-      { html: body.html, provider: body.provider },
+      updateData,
       { new: true }
     );
 

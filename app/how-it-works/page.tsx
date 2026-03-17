@@ -40,7 +40,7 @@ function PromptMockup() {
   }, [typed, typing, active]);
 
   return (
-    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md select-none">
       {/* Browser chrome */}
       <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
         <div className="flex gap-1.5">
@@ -49,7 +49,7 @@ function PromptMockup() {
           ))}
         </div>
         <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
-          pageforge.ai
+          {process.env.NEXT_PUBLIC_URL || "pageforge.ai"}
         </div>
       </div>
 
@@ -113,7 +113,7 @@ function GeneratingMockup() {
   }, [progress]);
 
   return (
-    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md select-none">
       <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
         <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
@@ -121,7 +121,7 @@ function GeneratingMockup() {
           ))}
         </div>
         <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
-          pageforge.ai/new
+          {(process.env.NEXT_PUBLIC_URL || "pageforge.ai")}/new
         </div>
       </div>
 
@@ -172,7 +172,7 @@ function PreviewMockup() {
   const [tab, setTab] = useState<"preview" | "code">("preview");
 
   return (
-    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md select-none">
       {/* Browser chrome */}
       <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
         <div className="flex gap-1.5">
@@ -274,61 +274,81 @@ function PreviewMockup() {
 
 function DashboardMockup() {
   const pages = [
-    { prompt: "AI tool for B2B sales cold emails", provider: "gemini", time: "2m ago" },
-    { prompt: "Notion-like app for engineering teams", provider: "openai", time: "1h ago" },
-    { prompt: "Invoicing SaaS for freelancers", provider: "gemini", time: "yesterday" },
+    { prompt: "AI tool for B2B sales cold emails", time: "2m ago" },
+    { prompt: "Notion-like app for teams", time: "1h ago" },
+    { prompt: "Invoicing SaaS for freelancers", time: "yesterday" },
   ];
 
   return (
-    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md">
-      <div className="bg-landing-bg border-b border-landing-border p-2.5 px-3.5 flex items-center gap-2.5">
+    <div className="bg-white border border-landing-border rounded-xl overflow-hidden font-dmsans shadow-landing-md select-none h-[320px] flex flex-col">
+      {/* Browser chrome */}
+      <div className="bg-landing-bg border-b border-landing-border p-2 px-3 flex items-center gap-2">
         <div className="flex gap-1.5">
           {["#ff5f57","#febc2e","#28c840"].map((c) => (
-            <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
+            <span key={c} className="w-2 rounded-full h-2" style={{ background: c }} />
           ))}
         </div>
-        <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
-          pageforge.ai/dashboard
+        <div className="flex-1 bg-white rounded-md py-[2px] px-2 text-[0.6rem] text-landing-ink-muted border border-landing-border text-center">
+          {(process.env.NEXT_PUBLIC_URL || "pageforge.ai")}/dashboard
         </div>
       </div>
 
-      <div className="p-4 text-left">
-        <div className="flex justify-between items-center mb-3.5">
-          <div>
-            <p className="font-instrument text-lg text-landing-ink tracking-tight leading-none">Your Pages</p>
-            <p className="text-[0.6rem] text-landing-ink-faint mt-1">{pages.length} pages generated</p>
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar */}
+        <div className="w-20 border-r border-landing-border bg-white flex flex-col p-2 space-y-4">
+          <div className="w-6 h-6 rounded-md bg-landing-accent flex items-center justify-center text-white text-[10px] font-bold mx-auto mb-2">P</div>
+          <div className="space-y-2.5">
+            {["⊞","▢","☆","👤"].map((icon, i) => (
+              <div key={i} className={`w-6 h-6 rounded-md mx-auto flex items-center justify-center text-[0.7rem] ${i === 0 ? 'bg-landing-bg text-landing-accent' : 'text-landing-ink-faint'}`}>
+                {icon}
+              </div>
+            ))}
           </div>
-          <div className="bg-landing-accent text-white text-[0.6rem] font-bold px-2.5 py-1 rounded-md">
-            + New
+          <div className="mt-auto pt-2 border-t border-landing-border">
+            <div className="w-6 h-6 rounded-full bg-landing-accent/10 border border-landing-accent/20 flex items-center justify-center text-[8px] text-landing-accent font-bold mx-auto">U</div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          {pages.map((p, i) => (
-            <div key={i} className="bg-white border border-landing-border rounded-lg p-2.5 flex items-center gap-2.5 shadow-sm">
-              <span className="text-[0.6rem] text-landing-ink-faint w-3 text-right">
-                {String(pages.length - i).padStart(2, "0")}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[0.6rem] text-landing-ink font-medium truncate mb-0.5">
-                  {p.prompt}
-                </p>
-                <div className="flex gap-1.5 items-center">
-                  <span className={`text-[0.5rem] px-1 rounded-sm border uppercase font-bold tracking-wider ${p.provider === 'gemini' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                    {p.provider}
-                  </span>
-                  <span className="text-[0.5rem] text-landing-ink-faint">{p.time}</span>
+        {/* Main */}
+        <div className="flex-1 bg-landing-bg/30 p-3 overflow-y-auto overflow-x-hidden custom-scrollbar text-left relative">
+           <div className="absolute rounded-full blur-[30px] w-24 h-24 bg-landing-accent/5 -top-5 -left-5" />
+           
+           <div className="relative z-10">
+              <p className="font-instrument text-[0.9rem] text-landing-ink leading-tight mb-4">
+                Ready to build, <span className="italic text-landing-accent">User?</span>
+              </p>
+              
+              {/* Fake Generate Form */}
+              <div className="bg-white border border-landing-border rounded-lg p-2 mb-5 shadow-sm">
+                <div className="text-[0.6rem] text-landing-ink-muted mb-1.5 px-1 truncate">What kind of page do you need?</div>
+                <div className="bg-landing-bg rounded-md p-1.5 flex justify-between items-center">
+                  <span className="text-[0.55rem] text-landing-ink-faint italic font-[350]">Describe your project...</span>
+                  <div className="w-4 h-4 rounded bg-landing-accent text-white flex items-center justify-center text-[0.5rem]">→</div>
                 </div>
               </div>
-              <div className="flex gap-1">
-                {["◉","↓","×"].map((icon) => (
-                  <div key={icon} className="w-5 h-5 bg-landing-bg rounded-md flex items-center justify-center text-[0.6rem] text-landing-ink-muted cursor-pointer hover:bg-landing-accent hover:text-white transition-colors">
-                    {icon}
+
+              <div className="mb-2 flex justify-between items-center px-0.5">
+                <span className="text-[0.55rem] font-bold uppercase tracking-wider text-landing-ink-faint">Recently <span className="italic text-landing-accent">viewed</span></span>
+                <span className="text-[0.5rem] text-landing-ink-faint">View all →</span>
+              </div>
+
+              {/* Grid */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {pages.slice(0, 2).map((p, i) => (
+                  <div key={i} className="group cursor-pointer">
+                    <div className="aspect-[4/3] bg-white border border-landing-border rounded-lg p-1.5 shadow-sm group-hover:border-landing-accent transition-colors">
+                      <div className="w-full h-full bg-landing-bg/50 rounded flex items-center justify-center text-[0.5rem] text-landing-ink-faint">
+                        preview
+                      </div>
+                    </div>
+                    <div className="mt-1 px-1">
+                      <div className="text-[0.5rem] font-bold text-landing-ink truncate">{p.prompt}</div>
+                      <div className="text-[0.45rem] text-landing-ink-faint">{p.time}</div>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
-          ))}
+           </div>
         </div>
       </div>
     </div>
@@ -351,7 +371,7 @@ const STEPS_DATA = [
     label: "Generate",
     title: "AI builds your page in seconds",
     description: "Your prompt is analyzed and mapped to high-conversion UI patterns. The AI handles the copy, selecting layouts, and styling everything automatically.",
-    details: ["Context-aware copy generation", "Intelligent layout selection", "~15 seconds generation time"],
+    details: ["Context-aware copy generation", "Intelligent layout selection", "Chat-based refining coming soon"],
     mockup: <GeneratingMockup />,
   },
   {
@@ -359,17 +379,17 @@ const STEPS_DATA = [
     label: "Preview",
     title: "See it live, download instantly",
     description: "Your page renders in a live preview panel. Inspect the design, preview the code, and download a single production-ready HTML file — no dependencies required.",
-    details: ["Real-time iframe preview", "Clean, self-contained HTML", "One-click local download"],
+    details: ["Real-time iframe preview", "Responsive device toggles", "One-click publishing soon"],
     mockup: <PreviewMockup />,
   },
-  {
-    number: "04",
-    label: "Manage",
-    title: "All your pages, in one place",
-    description: "Every page you generate is saved to your secure dashboard. Revisit your history, re-download past projects, or refine your workflow at any time.",
-    details: ["Automatic history logging", "Permanent project storage", "Quick-action dashboard"],
-    mockup: <DashboardMockup />,
-  },
+  // {
+  //   number: "04",
+  //   label: "Manage",
+  //   title: "All your pages, in one place",
+  //   description: "Every page you generate is saved to your secure dashboard. Revisit your history, re-download past projects, or refine your workflow at any time.",
+  //   details: ["Automatic history logging", "Permanent project storage", "Team workspaces planned"],
+  //   mockup: <DashboardMockup />,
+  // },
 ];
 
 export default function HowItWorksPage() {
@@ -466,7 +486,12 @@ export default function HowItWorksPage() {
                       <div className="w-5 h-5 rounded-full bg-landing-accent/10 flex items-center justify-center flex-shrink-0 mt-1">
                         <span className="text-[0.7rem] text-landing-accent font-bold">✓</span>
                       </div>
-                      <span className="text-[0.95rem] text-landing-ink-muted leading-relaxed font-[350]">{d}</span>
+                      <span className="text-[0.95rem] text-landing-ink-muted leading-relaxed font-[350]">
+                        {d}
+                        {d.includes("soon") || d.includes("planned") ? (
+                          <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-landing-accent opacity-60">Soon</span>
+                        ) : null}
+                      </span>
                     </div>
                   ))}
                 </div>

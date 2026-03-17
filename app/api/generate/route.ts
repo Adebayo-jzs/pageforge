@@ -4,24 +4,44 @@ import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 import { auth } from "@/lib/auth";
 
-function extractHtml(raw: string): string {
-  return raw
-    .replace(/^```html\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/\s*```$/i, "")
-    .trim();
+interface GeneratedPage {
+  name: string;
+  path: string;
+  html: string;
 }
 
-async function tryGemini(prompt: string): Promise<string> {
+function extractPages(raw: string): GeneratedPage[] {
+  try {
+    const cleaned = raw
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+    const parsed = JSON.parse(cleaned);
+    if (!parsed.pages || !Array.isArray(parsed.pages)) {
+      throw new Error("JSON missing 'pages' array");
+    }
+    return parsed.pages;
+  } catch (err) {
+    console.error("Failed to parse LLM JSON:", raw.substring(0, 200));
+    throw new Error("Invalid JSON returned by LLM");
+  }
+}
+
+async function tryGemini(prompt: string): Promise<GeneratedPage[]> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `Create a landing page for: ${prompt}` }] }],
+        contents: [{ parts: [{ text: `Create a multi-page website for: ${prompt}` }] }],
         systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        generationConfig: { maxOutputTokens: 65536, temperature: 0.8 },
+        generationConfig: { 
+          maxOutputTokens: 65536, 
+          temperature: 0.8,
+          responseMimeType: "application/json" 
+        },
       }),
     }
   );
@@ -31,10 +51,10 @@ async function tryGemini(prompt: string): Promise<string> {
     throw new Error("Gemini output truncated");
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!raw) throw new Error("Gemini returned empty content");
-  return extractHtml(raw);
+  return extractPages(raw);
 }
 
-async function tryOpenAI(prompt: string): Promise<string> {
+async function tryOpenAI(prompt: string): Promise<GeneratedPage[]> {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -43,10 +63,11 @@ async function tryOpenAI(prompt: string): Promise<string> {
     },
     body: JSON.stringify({
       model: "gpt-4o",
+      response_format: { type: "json_object" },
       max_tokens: 16384,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Create a landing page for: ${prompt}` },
+        { role: "user", content: `Create a multi-page website for: ${prompt}` },
       ],
     }),
   });
@@ -56,13 +77,13 @@ async function tryOpenAI(prompt: string): Promise<string> {
     throw new Error("OpenAI output truncated");
   const raw = data.choices?.[0]?.message?.content;
   if (!raw) throw new Error("OpenAI returned empty content");
-  return extractHtml(raw);
+  return extractPages(raw);
 }
 
 async function savePage(doc: {
   userId: string;
   prompt: string;
-  html: string;
+  pages: GeneratedPage[];
   provider: string;
   ip: string;
 }) {
@@ -97,13 +118,13 @@ export async function POST(req: NextRequest) {
 
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
 
-  let html: string;
+  let pages: GeneratedPage[];
   let provider: string;
 
   try {
     console.log("[/api/generate] Calling Gemini...");
     const geminiStart = Date.now();
-    html = await tryGemini(prompt);
+    pages = await tryGemini(prompt);
     provider = "gemini";
     console.log(`[/api/generate] Gemini succeeded in ${Date.now() - geminiStart}ms`);
   } catch (geminiErr) {
@@ -111,7 +132,7 @@ export async function POST(req: NextRequest) {
     try {
       console.log("[/api/generate] Calling OpenAI...");
       const openaiStart = Date.now();
-      html = await tryOpenAI(prompt);
+      pages = await tryOpenAI(prompt);
       provider = "openai";
       console.log(`[/api/generate] OpenAI succeeded in ${Date.now() - openaiStart}ms`);
     } catch (openaiErr) {
@@ -126,9 +147,12 @@ export async function POST(req: NextRequest) {
   // Save to MongoDB
   console.log("[/api/generate] Saving to MongoDB...");
   const saveStart = Date.now();
-  const id = await savePage({ userId, prompt, html, provider, ip });
+  const id = await savePage({ userId, prompt, pages, provider, ip });
   console.log(`[/api/generate] Saved in ${Date.now() - saveStart}ms`);
 
   console.log(`[/api/generate] Total duration: ${Date.now() - start}ms`);
-  return NextResponse.json({ html, provider, id });
+  
+  // Return the main page html for backwards compatibility with the previewer
+  const homeHtml = pages.find(p => p.path === "/" || p.path === "index.html")?.html || pages[0]?.html || "";
+  return NextResponse.json({ html: homeHtml, pages, provider, id });
 }

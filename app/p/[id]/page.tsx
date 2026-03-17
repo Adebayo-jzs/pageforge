@@ -21,9 +21,23 @@ export default async function SavedPage({ params }: PageProps) {
       return notFound();
     }
 
+    let htmlToRender = project.html;
+
+    if (project.pages && project.pages.length > 0) {
+      const homePage = project.pages.find((p: any) => p.path === "/" || p.path === "index.html") || project.pages[0];
+      if (homePage && homePage.html) {
+        htmlToRender = homePage.html;
+        htmlToRender = htmlToRender.replace(/<head>/i, `<head><base href="/p/${id}/" />`);
+      }
+    }
+
+    if (!htmlToRender) {
+      return notFound();
+    }
+
     return (
       <div 
-        dangerouslySetInnerHTML={{ __html: project.html }} 
+        dangerouslySetInnerHTML={{ __html: htmlToRender }} 
         className="w-full h-full min-h-screen"
       />
     );

@@ -13,7 +13,17 @@ const ProjectSchema = new mongoose.Schema(
     },
     html: {
       type: String,
-      required: true,
+      required: false, // Optional for new multi-page sites
+    },
+    pages: {
+      type: [
+        {
+          name: String,
+          path: String,
+          html: String,
+        },
+      ],
+      required: false, // Optional for older single-page sites
     },
     provider: {
       type: String,

@@ -7,7 +7,7 @@ import Image from "next/image";
 import GenerateForm from "./generate-form";
 // import Logo from "./logo";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon,Cancel01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon,ArrowRight02Icon,Cancel01Icon, CourtLawIcon, LayoutDashboard } from "@hugeicons/core-free-icons";
 import TextIcon from "./texticon";
 
 export default function Navbar() {
@@ -121,26 +121,26 @@ export default function Navbar() {
               </p>
             </div>
         
-            <div className="py-1">
-              <Link href="/dashboard" className="dd-item">
-                <span className="text-landing-ink-muted text-xs">◈</span> dashboard
+            <div className="py-1 px-3.5">
+              <Link href="/dashboard" className="dd-item flex items-center justify-start gap-2">
+                <HugeiconsIcon icon={LayoutDashboard} className="w-5 h-5" /> dashboard
               </Link>
-              <button onClick={() => setIsModalOpen(true)} className="dd-item flex items-center gap-2">
+              <button onClick={() => setIsModalOpen(true)} className="dd-item flex items-center justify-start gap-2">
                 <HugeiconsIcon icon={Add01Icon} className="w-5 h-5" /> new page
               </button>
-              <Link href="/policy" className="dd-item">
-                <span className="text-landing-ink-muted text-xs">⚖</span> privacy policy
+              <Link href="/policy" className="dd-item flex items-center justify-start gap-2">
+                <HugeiconsIcon icon={CourtLawIcon} className="w-5 h-5" /> privacy policy
               </Link>
             </div>
         
-            <div className="h-px bg-landing-border" />
+            <div className="h-px  bg-landing-border" />
         
-              <div className="py-1">
+              <div className="py-1 px-3.5">
                 <button
                   onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="dd-item w-full text-left hover:!bg-red-50 hover:!text-red-500"
+                  className="dd-item w-full flex tems-center gap-2 text-left hover:!bg-red-50 hover:!text-red-500"
                 >
-                  <span className="text-xs">→</span> sign out
+                  <HugeiconsIcon icon={ArrowRight02Icon} className="h-5 w-5"/> sign out
                 </button>
               </div>
             </div>
