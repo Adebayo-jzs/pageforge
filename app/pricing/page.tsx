@@ -46,7 +46,7 @@ export default function Pricing() {
       btn: 'Get started', btnClass: 'bg-transparent text-landing-ink border-[1.5px] border-landing-border hover:bg-landing-ink hover:text-white',
       features: [
         { check: true, text: '3 pages' }, { check: true, text: 'AI copywriting' },
-        { check: true, text: 'pageforge.ai subdomain' }, { check: true, text: 'Basic analytics' },
+        { check: true, text: 'Subdomain generation', soon: true }, { check: true, text: 'Basic analytics', soon: true },
         { check: false, text: 'Custom domain' }, { check: false, text: 'A/B testing' },
       ]
     },
@@ -56,8 +56,8 @@ export default function Pricing() {
       btn: 'Start free trial', btnClass: 'bg-landing-accent text-white border-none shadow-[0_4px_16px_rgba(232,82,26,0.35)] hover:shadow-[0_8px_24px_rgba(232,82,26,0.45)] hover:-translate-y-[2px]',
       features: [
         { check: true, text: 'Unlimited pages' }, { check: true, text: 'AI copywriting + variants' },
-        { check: true, text: 'Custom domain' }, { check: true, text: 'Advanced analytics' },
-        { check: true, text: 'A/B testing' }, { check: true, text: 'Priority support' },
+        { check: true, text: 'Custom domain', soon: true }, { check: true, text: 'Advanced analytics', soon: true },
+        { check: true, text: 'A/B testing', soon: true }, { check: true, text: 'Priority support' },
       ]
     },
     {
@@ -65,9 +65,9 @@ export default function Pricing() {
       desc: 'Collaborate, manage clients, and white-label with your own branding.',
       btn: 'Contact sales', btnClass: 'bg-transparent text-landing-ink border-[1.5px] border-landing-border hover:bg-landing-ink hover:text-white',
       features: [
-        { check: true, text: 'Everything in Pro' }, { check: true, text: '5 team seats' },
-        { check: true, text: 'White-label' }, { check: true, text: 'Client workspaces' },
-        { check: true, text: 'API access' }, { check: true, text: 'Dedicated CSM' },
+        { check: true, text: 'Everything in Pro' }, { check: true, text: '5 team seats', soon: true },
+        { check: true, text: 'White-label', soon: true }, { check: true, text: 'Client workspaces', soon: true },
+        { check: true, text: 'API access', soon: true }, { check: true, text: 'Dedicated CSM', soon: true },
       ]
     }
   ];
@@ -102,6 +102,7 @@ export default function Pricing() {
               {tier.features.map((feat, j) => (
                 <div key={j} className={`flex items-center gap-2.5 text-[0.88rem] py-[9px] border-b last:border-b-0 ${tier.featured ? 'border-white/10' : 'border-landing-border'} ${feat.check ? '' : 'opacity-40'}`}>
                   <span className="text-landing-accent text-[0.85rem]">{feat.check ? '✓' : '—'}</span> {feat.text}
+                  {(feat as any).soon && <span className={`text-[9px] font-bold uppercase tracking-widest ml-1 ${tier.featured ? 'text-white/40' : 'text-landing-accent'}`}>Soon</span>}
                 </div>
               ))}
             </div>
