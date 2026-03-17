@@ -8,12 +8,38 @@ import {
   ReloadIcon,
   ViewIcon,
   Link01Icon,
+  SmartPhone01Icon,
+  TabletIcon,
+  Monitor,
 } from "@hugeicons/core-free-icons";
 import { useState, useRef, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import TextIcon from "@/components/texticon";
 
 type Tab = "preview" | "code";
+
+function formatHtml(html: string) {
+  let formatted = "";
+  let indent = 0;
+  const tab = "  ";
+  // Remove existing newlines/extra spaces between tags to start fresh
+  const cleanHtml = html.replace(/>\s+</g, "><").trim();
+  
+  cleanHtml.split(/(?=<)/g).forEach((node) => {
+    if (node.startsWith("</")) {
+      indent--;
+      formatted += tab.repeat(indent) + node + "\n";
+    } else if (node.startsWith("<") && !node.startsWith("<!") && !node.endsWith("/>") && !node.includes("</")) {
+      // Check for self-closing tags (simplified)
+      const isSelfClosing = /<(br|hr|img|input|link|meta|area|base|col|embed|param|source|track|wbr)[^>]*>/i.test(node);
+      formatted += tab.repeat(indent) + node + "\n";
+      if (!isSelfClosing) indent++;
+    } else {
+      formatted += tab.repeat(indent) + node + "\n";
+    }
+  });
+  return formatted.trim();
+}
 
 export default function Workspace({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -25,16 +51,31 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
   
   const [prompt, setPrompt] = useState("");
   const [html, setHtml] = useState("");
+  const [pages, setPages] = useState<any[]>([]);
+  const [activePagePath, setActivePagePath] = useState("/");
   const [provider, setProvider] = useState("");
   const [createdAt, setCreatedAt] = useState("");
 
   const [activeTab, setActiveTab] = useState<Tab>("preview");
+  const [previewMode, setPreviewMode] = useState<"mobile" | "tablet" | "desktop">("desktop");
   const [editableCode, setEditableCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     async function loadProject() {
@@ -43,11 +84,19 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
         if (!res.ok) throw new Error("Failed to load project");
         const data = await res.json();
         
-        setPrompt(data.prompt);
-        setHtml(data.html);
-        setEditableCode(data.html);
+        const projectPages = data.pages || [];
+        setPages(projectPages);
+        
+        const homePage = projectPages.length > 0 ? (projectPages.find((p: any) => p.path === "/" || p.path === "index.html") || projectPages[0]) : null;
+        const homePath = homePage ? homePage.path : "/";
+        const homeHtml = data.html || (homePage?.html || "");
+        
+        setPrompt(data.prompt || "");
+        setActivePagePath(homePath);
+        setHtml(homeHtml || "");
+        setEditableCode(formatHtml(homeHtml || ""));
         setProvider(data.provider || "gemini");
-        setCreatedAt(data.createdAt);
+        setCreatedAt(data.createdAt || "");
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -71,15 +120,18 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setHtml(data.html);
-      setEditableCode(data.html);
+      setPages(data.pages || []);
+      const newHomeHtml = data.pages && data.pages.length > 0 ? (data.pages.find((p: any) => p.path === "/" || p.path === "index.html")?.html || data.pages[0]?.html) : data.html;
+      setHtml(newHomeHtml || data.html);
+      setEditableCode(formatHtml(newHomeHtml || data.html || ""));
+      setActivePagePath("/");
       setProvider(data.provider);
       setActiveTab("preview");
       
       await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ html: data.html, provider: data.provider })
+        body: JSON.stringify({ html: data.html, pages: data.pages, provider: data.provider })
       });
       
     } catch (e: any) {
@@ -93,12 +145,59 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
     if (iframeRef.current && html && !loading) {
       const doc = iframeRef.current.contentDocument;
       if (doc) {
+        const script = `
+        <script>
+          document.addEventListener('click', function(e) {
+            const a = e.target.closest('a');
+            if (a) {
+              const href = a.getAttribute('href');
+              if (href && !href.startsWith('http') && !href.startsWith('#')) {
+                e.preventDefault();
+                window.parent.postMessage({ type: 'NAVIGATE', path: href }, '*');
+              }
+            }
+          });
+        </script>
+        `;
+        let displayHtml = html;
+        if (displayHtml.includes('</body>')) {
+            displayHtml = displayHtml.replace('</body>', script + '</body>');
+        } else {
+            displayHtml += script;
+        }
+
         doc.open();
-        doc.write(html);
+        doc.write(displayHtml);
         doc.close();
       }
     }
   }, [html, loading]);
+
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'NAVIGATE' && e.data.path && pages.length > 0) {
+        let targetPath = e.data.path;
+        // handle absolute relative paths
+        if (!targetPath.startsWith('/')) {
+            targetPath = '/' + targetPath;
+        }
+        targetPath = targetPath.split('#')[0].split('?')[0]; 
+        
+        const targetPage = pages.find(p => p.path === targetPath || p.path === (targetPath.startsWith('/') ? targetPath.substring(1) : targetPath));
+        
+        if (targetPage) {
+          setActivePagePath(targetPage.path);
+          setHtml(targetPage.html);
+          setEditableCode(formatHtml(targetPage.html));
+          setActiveTab('preview');
+        } else {
+          console.warn('Page not found in pages array:', targetPath);
+        }
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [pages]);
 
   useEffect(() => {
     if (activeTab === "preview" && editableCode && editableCode !== html) {
@@ -199,6 +298,37 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
 
           <div className="h-px bg-landing-border" />
 
+          {/* Pages */}
+          {pages.length > 1 && (
+            <>
+              <div className="space-y-4">
+                <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">Pages</h3>
+                <div className="flex flex-col gap-2">
+                  {pages.map((p) => (
+                    <button
+                      key={p.path}
+                      onClick={() => {
+                        setActivePagePath(p.path);
+                        setHtml(p.html);
+                        setEditableCode(p.html);
+                        setActiveTab('preview');
+                      }}
+                      className={`text-left px-4 py-3 text-sm font-bold rounded-xl transition-all ${
+                        activePagePath === p.path
+                          ? "bg-landing-ink text-white shadow-landing-md"
+                          : "bg-white text-landing-ink-muted hover:bg-landing-bg border border-landing-border"
+                      }`}
+                    >
+                      {p.path}
+                      {/* {p.name || p.path} */}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="h-px bg-landing-border" />
+            </>
+          )}
+
           {/* Actions */}
           <div className="space-y-4">
             <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">Refinement</h3>
@@ -262,7 +392,7 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
       {/* ───── Right panel (Canvas) ───── */}
       <div className="flex-1 flex flex-col bg-white">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-landing-border bg-white/80 backdrop-blur-md">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-landing-border bg-white/80 backdrop-blur-md relative z-[60]">
           <div className="flex gap-2 items-center">
             <div className="flex gap-1.5 mr-4">
               <span className="w-3 h-3 rounded-full bg-[#ff5f57]/20 border border-[#ff5f57]/30" />
@@ -294,7 +424,105 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
             </div>
           </div>
 
-          <div className="flex gap-3">
+          {/* Page Selector (Center) */}
+          {pages.length > 0 && (
+            <div className="absolute left-1/2 -translate-x-1/2 hidden md:block" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 in-w-sm  bg-landing-bg hover:bg-white border border-landing-border rounded-full px-5 py-2 shadow-landing-sm transition-all hover:shadow-landing-md active:scale-[0.98] cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex flex-col  items-start gap-0.5">
+                    {/* <span className="text-[10px] text-landing-ink-faint font-bold uppercase tracking-[0.15em] leading-none">Viewing Page</span> */}
+                    <span className="text-xs font-bold text-landing-ink leading-none">{activePagePath}</span>
+                  </div>
+                </div>
+                <div className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}>
+                  <svg className="w-4 h-4 text-landing-ink-muted group-hover:text-landing-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute top-[calc(100%+12px)] left-1/2 -translate-x-1/2 w-64 bg-white/80 backdrop-blur-xl border border-landing-border rounded-2xl shadow-landing-lg py-2 animate-in fade-in slide-in-from-top-2 duration-200 z-50 overflow-hidden">
+                  <div className="px-4 py-2 border-b border-landing-border/50 mb-1">
+                    <span className="text-[10px] text-landing-ink-faint font-bold uppercase tracking-widest">Project Sitemap</span>
+                  </div>
+                  <div className="max-h-72 overflow-y-auto custom-scrollbar">
+                    {pages.map((p) => (
+                      <button
+                        key={p.path}
+                        onClick={() => {
+                          setActivePagePath(p.path);
+                          setHtml(p.html);
+                          setEditableCode(formatHtml(p.html));
+                          setActiveTab('preview');
+                          setDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 flex items-center justify-between transition-all group/item ${
+                          activePagePath === p.path
+                            ? "bg-landing-ink text-white"
+                            : "hover:bg-landing-bg text-landing-ink-muted hover:text-landing-ink"
+                        }`}
+                      >
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[11px] font-bold leading-none">{p.path}</span>
+                          <span className={`text-[9px] font-medium uppercase tracking-tighter ${activePagePath === p.path ? 'text-white/60' : 'text-landing-ink-faint'}`}>
+                            {p.path === "/" ? "Home Page" : "Component"}
+                          </span>
+                        </div>
+                        {activePagePath === p.path && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-landing-accent ring-4 ring-landing-accent/20" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Device Toggles (Internal to Preview Tab) */}
+          {activeTab === "preview" && (
+            <div className="flex bg-landing-bg rounded-full p-1 border border-landing-border ml-4">
+              <button
+                onClick={() => setPreviewMode("desktop")}
+                title="Desktop View"
+                className={`p-2 rounded-full transition-all ${
+                  previewMode === "desktop"
+                    ? "bg-white text-landing-accent shadow-landing-sm"
+                    : "text-landing-ink-faint hover:text-landing-ink"
+                }`}
+              >
+                <HugeiconsIcon icon={Monitor} className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPreviewMode("tablet")}
+                title="Tablet View"
+                className={`p-2 rounded-full transition-all ${
+                  previewMode === "tablet"
+                    ? "bg-white text-landing-accent shadow-landing-sm"
+                    : "text-landing-ink-faint hover:text-landing-ink"
+                }`}
+              >
+                <HugeiconsIcon icon={TabletIcon} className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPreviewMode("mobile")}
+                title="Mobile View"
+                className={`p-2 rounded-full transition-all ${
+                  previewMode === "mobile"
+                    ? "bg-white text-landing-accent shadow-landing-sm"
+                    : "text-landing-ink-faint hover:text-landing-ink"
+                }`}
+              >
+                <HugeiconsIcon icon={SmartPhone01Icon} className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-3 ml-auto">
             {/* Download */}
             <button
               onClick={downloadHtml}
@@ -353,14 +581,30 @@ export default function Workspace({ params }: { params: Promise<{ id: string }> 
              </div>
           )}
           
+          
           {/* Preview tab */}
-          <div className={activeTab === "preview" ? "w-full h-full block" : "hidden"}>
-            <iframe
-              ref={iframeRef}
-              className="w-full h-full border-none bg-white shadow-landing-2xl"
-              title="Preview"
-              sandbox="allow-scripts allow-same-origin"
-            />
+          <div className={`${activeTab === "preview" ? "flex" : "hidden"} w-full h-full items-center justify-center  bg-landing-bg/50 overflow-auto custom-scrollbar`}>
+            <div 
+              className={`h-full bg-white shadow-landing-2xl transition-all duration-500 ease-in-out relative
+                ${previewMode === 'desktop' ? 'w-full' : ''}
+                ${previewMode === 'tablet' ? 'w-[768px]' : ''}
+                ${previewMode === 'mobile' ? 'w-[375px]' : ''}
+              `}
+            >
+              {/* Device Frame Decorations for Mobile/Tablet */}
+              {previewMode !== 'desktop' && (
+                <div className="absolute inset-x-0 -top-6 flex justify-center">
+                  <div className="w-20 h-1 bg-landing-border rounded-full" />
+                </div>
+              )}
+              
+              <iframe
+                ref={iframeRef}
+                className="w-full h-full border-none bg-white shadow-landing-2xl"
+                title="Preview"
+                sandbox="allow-scripts allow-same-origin"
+              />
+            </div>
           </div>
 
           {/* Code tab */}
