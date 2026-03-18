@@ -23,7 +23,13 @@ export default {
       const isAuthPage = nextUrl.pathname.startsWith("/login") || 
                          nextUrl.pathname.startsWith("/register");
       const isPublicPage = nextUrl.pathname === "/" || 
-                           nextUrl.pathname.startsWith("/policy") || nextUrl.pathname.startsWith("/how-it-works") || nextUrl.pathname.startsWith("/pricing");
+                           nextUrl.pathname.startsWith("/policy") || 
+                           nextUrl.pathname.startsWith("/how-it-works") || 
+                           nextUrl.pathname.startsWith("/pricing") ||
+                           nextUrl.pathname.startsWith("/og-image.png") ||
+                           nextUrl.pathname.startsWith("/sitemap.xml") ||
+                           nextUrl.pathname.startsWith("/robots.txt") ||
+                           nextUrl.pathname.startsWith("/p/");
 
       if (isAuthPage) {
         if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
