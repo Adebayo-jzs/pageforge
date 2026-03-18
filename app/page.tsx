@@ -268,7 +268,7 @@ const PRICING_DATA = [
     ]
   },
   {
-    name: 'Pro', price: '29', period: 'per month', featured: true,
+    name: 'Pro', price: '0', period: 'per month', featured: true,
     desc: 'For founders and marketers who need to move fast without trade-offs.',
     btn: 'Start free trial', btnClass: 'bg-landing-accent text-white border-none shadow-[0_4px_16px_rgba(232,82,26,0.35)] hover:shadow-[0_8px_24px_rgba(232,82,26,0.45)] hover:-translate-y-[2px]',
     features: [
@@ -278,7 +278,7 @@ const PRICING_DATA = [
     ]
   },
   {
-    name: 'Team', price: '79', period: 'per month',
+    name: 'Team', price: '0', period: 'per month',
     desc: 'Collaborate, manage clients, and white-label with your own branding.',
     btn: 'Contact sales', btnClass: 'bg-transparent text-landing-ink border-[1.5px] border-landing-border hover:bg-landing-ink hover:text-white',
     features: [
