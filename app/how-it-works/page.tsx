@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import CTA from "@/components/cta";
 import Footer from "@/components/footer";
+import Contribute from "@/components/Contribute";
 
 /* ─── Mockup components ─────────────────────────────── */
 
@@ -507,6 +508,7 @@ export default function HowItWorksPage() {
       </div>
 
       
+      <Contribute />
       <CTA/>
       <Footer/>
     </div>

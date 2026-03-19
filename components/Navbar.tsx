@@ -52,6 +52,7 @@ export default function Navbar() {
     { label: "how it works", href: "/how-it-works" },
     { label: "privacy policy", href: "/policy" },
     { label: "pricing", href: "/pricing" },
+    { label: "github", href: "https://github.com/Adebayo-jzs/pageforge", external: true },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -79,9 +80,15 @@ export default function Navbar() {
        
       <div className="hidden md:flex items-center gap-1 ml-2">
         {navLinks.map((link) => (
-          <Link key={link.href} href={link.href} className={navLinkClass(link.href)}>
-            {link.label}
-          </Link>
+          link.external ? (
+            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={navLinkClass(link.href)}>
+              {link.label}
+            </a>
+          ) : (
+            <Link key={link.href} href={link.href} className={navLinkClass(link.href)}>
+              {link.label}
+            </Link>
+          )
         ))}
       </div>
       <div className="flex gap-2">
@@ -187,15 +194,29 @@ export default function Navbar() {
             {/* Nav links */}
             <div className="flex flex-col items-center gap-6">
               {navLinks.map((link) => (
-                <Link 
-                  key={link.href} 
-                  href={link.href} 
-                  className={`text-2xl font-instrument tracking-tight transition-all ${
-                    isActive(link.href) ? "text-landing-accent" : "text-landing-ink hover:text-landing-accent"
-                  }`}
-                >
-                  {link.label}
-                </Link>
+                link.external ? (
+                  <a 
+                    key={link.href} 
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`text-2xl font-instrument tracking-tight transition-all ${
+                      isActive(link.href) ? "text-landing-accent" : "text-landing-ink hover:text-landing-accent"
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link 
+                    key={link.href} 
+                    href={link.href} 
+                    className={`text-2xl font-instrument tracking-tight transition-all ${
+                      isActive(link.href) ? "text-landing-accent" : "text-landing-ink hover:text-landing-accent"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                )
               ))}
               {session && (
                 <Link 
