@@ -1,5 +1,9 @@
 # ⚡ PageForge
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC)](https://tailwindcss.com/)
+
 AI-powered landing page generator — describe your product, get a stunning, production-ready HTML page in seconds.
 
 PageForge is built with Next.js and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
@@ -15,7 +19,7 @@ PageForge is built with Next.js and powered by Gemini AI. Simply describe your p
 
 ## Tech Stack
 
-- **Framework:** Next.js 16 (App Router)
+- **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4
 - **Icons:** HugeIcons
@@ -42,10 +46,10 @@ PageForge is built with Next.js and powered by Gemini AI. Simply describe your p
    npm install
    ```
 
-3. Create a `.env.local` file:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   OPENAI_API_KEY=your_openai_api_key_here   # optional
+3. Configure environment variables:
+   Copy `.env.example` to `.env.local` and fill in your keys:
+   ```bash
+   cp .env.example .env.local
    ```
 
 4. Run the dev server:
@@ -65,6 +69,10 @@ PageForge is built with Next.js and powered by Gemini AI. Simply describe your p
    - Inline SVG icons and gradient accents
 4. Preview the result, edit the code, or download the HTML
 
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and our [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 
-MIT
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
