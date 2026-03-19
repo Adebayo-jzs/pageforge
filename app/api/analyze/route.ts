@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import dbConnect from "@/lib/mongodb";
+import Project from "@/models/Project";
 
 const SYSTEM_PROMPT = `
 You are a product management assistant for "PageForge", an AI landing page generator.
@@ -27,6 +30,32 @@ export async function POST(req: NextRequest) {
 
     if (!prompt?.trim()) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    }
+
+    // Check session
+    const session = await auth();
+    const userId = session?.user?.id;
+    const userPlan = session?.user?.plan;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limiting for free plan
+    if (userPlan === "free") {
+      await dbConnect();
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentCount = await Project.countDocuments({
+        userId,
+        createdAt: { $gte: twentyFourHoursAgo },
+      });
+
+      if (recentCount >= 1) {
+        return NextResponse.json(
+          { error: "Free plan limit reached: 1 site per day. Upgrade to Pro for unlimited sites." },
+          { status: 429 }
+        );
+      }
     }
 
     const res = await fetch(

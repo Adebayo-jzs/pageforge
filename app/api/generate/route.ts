@@ -104,10 +104,30 @@ export async function POST(req: NextRequest) {
   // Check session first to avoid expensive AI calls for unauthorized users
   const session = await auth();
   const userId = session?.user?.id;
+  const userPlan = session?.user?.plan;
 
   if (!userId) {
     console.warn("[/api/generate] Unauthorized access attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Ratelimiting for free plan users: 1 site per day
+  if (userPlan === "free") {
+    await dbConnect();
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentProjectsCount = await Project.countDocuments({
+      userId,
+      createdAt: { $gte: twentyFourHoursAgo },
+    });
+
+    if (recentProjectsCount >= 1) {
+      return NextResponse.json(
+        { 
+          error: "Free plan limit reached: 1 site per day. Upgrade to Pro for unlimited sites." 
+        }, 
+        { status: 429 }
+      );
+    }
   }
 
   const { prompt } = await req.json();
