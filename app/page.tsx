@@ -9,6 +9,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import Navbar from '@/components/Navbar';
 import CTA from "@/components/cta";
 import Footer from "@/components/footer";
+import Contribute from "@/components/Contribute";
 
 // ─── Sub-components ───────────────────────────────────────────────
 
@@ -31,8 +32,8 @@ function Hero() {
       </div>
 
       <h1 className="font-instrument text-[clamp(3rem,8vw,7rem)] leading-none tracking-[-0.03em] max-w-[900px] mb-6 animate-[fade-up_.8s_.15s_ease_both] relative z-[1]">
-        Your landing page,<br />
-        built in <em className="italic text-landing-accent ">30 seconds</em>
+        The <span className="italic text-landing-accent">open-source</span><br />
+        AI landing page generator
       </h1>
 
       <p className="text-[clamp(1rem,2vw,1.2rem)] text-landing-ink-muted max-w-[520px] mx-auto leading-[1.7] font-[350] mb-10 animate-[fade-up_.8s_.3s_ease_both] relative z-[1]">
@@ -373,6 +374,7 @@ export default function Landing() {
       <Features />
       <HowItWorks />
       <Testimonials />
+      <Contribute />
       <Pricing />
       <CTA />
       <Footer />

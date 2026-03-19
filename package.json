@@ -1,7 +1,21 @@
 {
   "name": "pageforge",
   "version": "0.1.0",
-  "private": true,
+  "description": "AI-powered landing page generator built with Next.js and Gemini",
+  "author": "Adebayo-jzs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Adebayo-jzs/pageforge.git"
+  },
+  "keywords": [
+    "ai",
+    "nextjs",
+    "landing-page",
+    "generator",
+    "gemini",
+    "tailwind"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

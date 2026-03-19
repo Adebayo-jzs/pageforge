@@ -67,6 +67,11 @@ function NewPageContent() {
           body: JSON.stringify({ prompt: promptFromUrl }),
         });
         const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to analyze prompt");
+        }
+
         if (data.fields) {
           setFields(data.fields);
           const initialAnswers: Record<string, string> = {};
@@ -75,8 +80,9 @@ function NewPageContent() {
           });
           setAnswers(initialAnswers);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to analyze prompt", err);
+        setError(err.message);
       } finally {
         setAnalyzing(false);
       }
@@ -264,8 +270,9 @@ function NewPageContent() {
               </p>
               <button
                 onClick={generate}
-                className="px-12 py-4 bg-landing-accent text-white font-bold rounded-full
-                           hover:bg-landing-accent/90 hover:-translate-y-0.5 transition-all text-[1.05rem] shadow-landing-md cursor-pointer"
+                disabled={!!error}
+                className={`px-12 py-4 text-white font-bold rounded-full transition-all text-[1.05rem] shadow-landing-md cursor-pointer
+                           ${error ? "bg-landing-ink-faint cursor-not-allowed opacity-50" : "bg-landing-accent hover:bg-landing-accent/90 hover:-translate-y-0.5"}`}
               >
                 Build it now
               </button>

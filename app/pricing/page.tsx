@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/footer";
+import Contribute from "@/components/Contribute";
 
 export default function Pricing() {
   useEffect(() => {
@@ -110,6 +111,7 @@ export default function Pricing() {
         ))}
       </div>
       </section>
+      <Contribute />
       <Footer/>
     </div>
   );
