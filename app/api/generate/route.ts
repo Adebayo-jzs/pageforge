@@ -54,6 +54,32 @@ async function tryGemini(prompt: string): Promise<GeneratedPage[]> {
   return extractPages(raw);
 }
 
+async function tryGroq(prompt: string): Promise<GeneratedPage[]> {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" },
+      max_tokens: 32768,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: `Create a multi-page website for: ${prompt}` },
+      ],
+    }),
+  });
+  if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  if (data.choices?.[0]?.finish_reason === "length")
+    throw new Error("Groq output truncated");
+  const raw = data.choices?.[0]?.message?.content;
+  if (!raw) throw new Error("Groq returned empty content");
+  return extractPages(raw);
+}
+
 async function tryOpenAI(prompt: string): Promise<GeneratedPage[]> {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -148,19 +174,28 @@ export async function POST(req: NextRequest) {
     provider = "gemini";
     console.log(`[/api/generate] Gemini succeeded in ${Date.now() - geminiStart}ms`);
   } catch (geminiErr) {
-    console.warn("[/api/generate] Gemini failed, trying OpenAI:", (geminiErr as Error).message);
+    console.warn("[/api/generate] Gemini failed, trying Groq:", (geminiErr as Error).message);
     try {
-      console.log("[/api/generate] Calling OpenAI...");
-      const openaiStart = Date.now();
-      pages = await tryOpenAI(prompt);
-      provider = "openai";
-      console.log(`[/api/generate] OpenAI succeeded in ${Date.now() - openaiStart}ms`);
-    } catch (openaiErr) {
-      console.error("[/api/generate] OpenAI also failed:", (openaiErr as Error).message);
-      return NextResponse.json(
-        { error: "All providers failed. Check your API keys." },
-        { status: 502 }
-      );
+      console.log("[/api/generate] Calling Groq...");
+      const groqStart = Date.now();
+      pages = await tryGroq(prompt);
+      provider = "groq";
+      console.log(`[/api/generate] Groq succeeded in ${Date.now() - groqStart}ms`);
+    } catch (groqErr) {
+      console.warn("[/api/generate] Groq failed, trying OpenAI:", (groqErr as Error).message);
+      try {
+        console.log("[/api/generate] Calling OpenAI...");
+        const openaiStart = Date.now();
+        pages = await tryOpenAI(prompt);
+        provider = "openai";
+        console.log(`[/api/generate] OpenAI succeeded in ${Date.now() - openaiStart}ms`);
+      } catch (openaiErr) {
+        console.error("[/api/generate] OpenAI also failed:", (openaiErr as Error).message);
+        return NextResponse.json(
+          { error: "All providers failed. Check your API keys." },
+          { status: 502 }
+        );
+      }
     }
   }
 
