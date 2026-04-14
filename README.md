@@ -1,29 +1,32 @@
 # ⚡ PageForge
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC)](https://tailwindcss.com/)
 
 AI-powered landing page generator — describe your product, get a stunning, production-ready HTML page in seconds.
 
-PageForge is built with Next.js and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
+PageForge is built with Next.js 16 and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
 
 ## Features
 
 - 🤖 **AI-Powered Generation** — Describe your product in plain English and get a complete landing page
-- 👁 **Live Preview** — See your generated page rendered in real-time
-- ✏️ **Code Editor** — View, edit, and tweak the generated HTML with line numbers
-- 📋 **Copy & Download** — Copy code to clipboard or download as an HTML file
-- 🔄 **Multi-Provider Fallback** — Gemini first, OpenAI as backup
+- 🔍 **Prompt Refinement** — AI-driven analysis to capture critical brand and product details
+- 👁 **Live Preview** — See your generated page rendered in real-time with device toggles (Desktop/Tablet/Mobile)
+- ✏️ **Code Editor** — View, edit, and tweak the generated HTML with line numbers and auto-sync
+- 📋 **Copy & Download** — Copy code to clipboard or download as a standalone HTML file
+- 🔄 **Regeneration** — Refine and update the entire design with a single click
 - 📱 **Responsive Output** — Generated pages are mobile-friendly out of the box
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router)
+- **Library:** React 19
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4
 - **Icons:** HugeIcons
-- **AI:** Google Gemini 2.5 Flash / OpenAI GPT-4o
+- **AI:** Google Gemini 2.0 / OpenAI GPT-4o
+- **Database:** MongoDB (via Mongoose)
 
 ## Getting Started
 
