@@ -56,6 +56,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+import ReactPreview from "./ReactPreview";
+
 export default async function SavedPage({ params }: PageProps) {
   const { id } = await params;
 
@@ -65,10 +67,21 @@ export default async function SavedPage({ params }: PageProps) {
 
   try {
     await dbConnect();
-    const project = await Project.findById(id);
+    const project = await Project.findById(id).lean();
 
     if (!project) {
       return notFound();
+    }
+
+    if (project.type === "react") {
+      let files = project.files || {};
+      if (Array.isArray(files)) {
+        files = files.reduce((acc: any, file: any) => {
+          acc[file.path] = file.content;
+          return acc;
+        }, {});
+      }
+      return <ReactPreview files={files} />;
     }
 
     let htmlToRender = project.html;
