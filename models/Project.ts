@@ -15,12 +15,32 @@ const ProjectSchema = new mongoose.Schema(
       type: String,
       required: false, // Optional for new multi-page sites
     },
+    type: {
+      type: String,
+      enum: ["html", "react"],
+      default: "html",
+    },
+    brandConfig: {
+      type: Object,
+      required: false,
+    },
+    layoutPlan: {
+      type: Object,
+      required: false,
+    },
+    files: [
+      {
+        path: String,
+        content: String,
+      }
+    ],
     pages: {
       type: [
         {
           name: String,
           path: String,
           html: String,
+          reactCode: String,
         },
       ],
       required: false, // Optional for older single-page sites
@@ -44,6 +64,9 @@ const ProjectSchema = new mongoose.Schema(
   }
 );
 
-const Project = mongoose.models.Project || mongoose.model("Project", ProjectSchema);
+if (mongoose.models.Project) {
+  delete mongoose.models.Project;
+}
+const Project = mongoose.model("Project", ProjectSchema);
 
 export default Project;
