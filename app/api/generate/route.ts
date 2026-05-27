@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { SYSTEM_PROMPT } from "@/lib/prompts";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
+import User from "@/models/User";
 import { auth } from "@/lib/auth";
+
+import { analyzePrompt } from "@/lib/ai/analyzer";
+import { generateBrand } from "@/lib/ai/brand";
+import { planLayout } from "@/lib/ai/planner";
+import { composeReactPage } from "@/lib/ai/composer";
 
 interface GeneratedPage {
   name: string;
   path: string;
-  html: string;
+  html?: string;
+  reactCode?: string;
 }
 
 function extractPages(raw: string): GeneratedPage[] {
@@ -54,80 +61,13 @@ async function tryGemini(prompt: string): Promise<GeneratedPage[]> {
   return extractPages(raw);
 }
 
-async function tryGroq(prompt: string): Promise<GeneratedPage[]> {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
-      max_tokens: 32768,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Create a multi-page website for: ${prompt}` },
-      ],
-    }),
-  });
-  if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  if (data.choices?.[0]?.finish_reason === "length")
-    throw new Error("Groq output truncated");
-  const raw = data.choices?.[0]?.message?.content;
-  if (!raw) throw new Error("Groq returned empty content");
-  return extractPages(raw);
-}
-
-async function tryOpenAI(prompt: string): Promise<GeneratedPage[]> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      response_format: { type: "json_object" },
-      max_tokens: 16384,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: `Create a multi-page website for: ${prompt}` },
-      ],
-    }),
-  });
-  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  if (data.choices?.[0]?.finish_reason === "length")
-    throw new Error("OpenAI output truncated");
-  const raw = data.choices?.[0]?.message?.content;
-  if (!raw) throw new Error("OpenAI returned empty content");
-  return extractPages(raw);
-}
-
-async function savePage(doc: {
-  userId: string;
-  prompt: string;
-  pages: GeneratedPage[];
-  provider: string;
-  ip: string;
-}) {
-  try {
-    await dbConnect();
-    const result = await Project.create(doc);
-    return result._id.toString();
-  } catch (err) {
-    console.error("MongoDB save failed:", err);
-    return null;
-  }
-}
+// Keeping Groq and OpenAI fallback for HTML generation only for simplicity in this example
+// You can expand this later if needed.
 
 export async function POST(req: NextRequest) {
   const start = Date.now();
   console.log("[/api/generate] Request received");
 
-  // Check session first to avoid expensive AI calls for unauthorized users
   const session = await auth();
   const userId = session?.user?.id;
   const userPlan = session?.user?.plan;
@@ -137,9 +77,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Ratelimiting for free plan users: 1 site per day
-  if (userPlan === "free") {
-    await dbConnect();
+  let isFreePlan = userPlan === "free";
+  
+  await dbConnect();
+  
+  // Verify plan from DB in case they just upgraded
+  if (isFreePlan) {
+    const dbUser = await User.findById(userId);
+    if (dbUser && dbUser.plan === "pro") {
+      isFreePlan = false;
+    }
+  }
+
+  if (isFreePlan) {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentProjectsCount = await Project.countDocuments({
       userId,
@@ -148,15 +98,13 @@ export async function POST(req: NextRequest) {
 
     if (recentProjectsCount >= 1) {
       return NextResponse.json(
-        { 
-          error: "Free plan limit reached: 1 site per day. Upgrade to Pro for unlimited sites." 
-        }, 
+        { error: "Free plan limit reached: 1 site per day. Upgrade to Pro for unlimited sites." }, 
         { status: 429 }
       );
     }
   }
 
-  const { prompt } = await req.json();
+  const { prompt, type = "html" } = await req.json();
 
   if (!prompt?.trim()) {
     return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
@@ -164,50 +112,83 @@ export async function POST(req: NextRequest) {
 
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
 
-  let pages: GeneratedPage[];
-  let provider: string;
+  let pages: GeneratedPage[] = [];
+  let provider = "unknown";
+  let brandConfig = null;
+  let layoutPlan = null;
+
+  let files: Record<string, string> = {};
 
   try {
-    console.log("[/api/generate] Calling Gemini...");
-    const geminiStart = Date.now();
-    pages = await tryGemini(prompt);
-    provider = "gemini";
-    console.log(`[/api/generate] Gemini succeeded in ${Date.now() - geminiStart}ms`);
-  } catch (geminiErr) {
-    console.warn("[/api/generate] Gemini failed, trying Groq:", (geminiErr as Error).message);
-    try {
-      console.log("[/api/generate] Calling Groq...");
-      const groqStart = Date.now();
-      pages = await tryGroq(prompt);
-      provider = "groq";
-      console.log(`[/api/generate] Groq succeeded in ${Date.now() - groqStart}ms`);
-    } catch (groqErr) {
-      console.warn("[/api/generate] Groq failed, trying OpenAI:", (groqErr as Error).message);
-      try {
-        console.log("[/api/generate] Calling OpenAI...");
-        const openaiStart = Date.now();
-        pages = await tryOpenAI(prompt);
-        provider = "openai";
-        console.log(`[/api/generate] OpenAI succeeded in ${Date.now() - openaiStart}ms`);
-      } catch (openaiErr) {
-        console.error("[/api/generate] OpenAI also failed:", (openaiErr as Error).message);
-        return NextResponse.json(
-          { error: "All providers failed. Check your API keys." },
-          { status: 502 }
-        );
-      }
+    if (type === "react") {
+      console.log("[/api/generate] Starting React pipeline...");
+      
+      console.log("[/api/generate] 1. Analyzing prompt...");
+      const analysis = await analyzePrompt(prompt);
+      
+      console.log("[/api/generate] 2. Generating brand...");
+      brandConfig = await generateBrand(analysis);
+      
+      console.log("[/api/generate] 3. Planning layout...");
+      layoutPlan = await planLayout(analysis);
+      
+      console.log("[/api/generate] 4. Composing React workspace...");
+      files = await composeReactPage(layoutPlan, analysis, brandConfig);
+      
+      provider = "openai-pipeline";
+    } else {
+      console.log("[/api/generate] Calling Gemini (HTML mode)...");
+      pages = await tryGemini(prompt);
+      provider = "gemini";
     }
+  } catch (err: any) {
+    console.error("[/api/generate] Pipeline failed:", err.message);
+    return NextResponse.json(
+      { error: "Generation failed. Please try again." },
+      { status: 500 }
+    );
   }
 
-  // Save to MongoDB
   console.log("[/api/generate] Saving to MongoDB...");
-  const saveStart = Date.now();
-  const id = await savePage({ userId, prompt, pages, provider, ip });
-  console.log(`[/api/generate] Saved in ${Date.now() - saveStart}ms`);
+  await dbConnect();
+  
+  // Format pages for backwards compatibility
+  if (type === "react" && layoutPlan) {
+    pages = layoutPlan.pages.map((p: any) => ({
+      name: p.name,
+      path: p.path,
+    }));
+  }
 
+  // Convert files object to array for MongoDB storage to bypass key restrictions
+  let dbFiles: any[] = [];
+  if (type === "react" && files) {
+    dbFiles = Object.keys(files).map((path) => ({
+      path,
+      content: files[path],
+    }));
+  }
+
+  const project = await Project.create({
+    userId,
+    prompt,
+    type,
+    pages,
+    files: dbFiles,
+    provider,
+    ip,
+    brandConfig,
+    layoutPlan,
+  });
+  
   console.log(`[/api/generate] Total duration: ${Date.now() - start}ms`);
   
-  // Return the main page html for backwards compatibility with the previewer
-  const homeHtml = pages.find(p => p.path === "/" || p.path === "index.html")?.html || pages[0]?.html || "";
-  return NextResponse.json({ html: homeHtml, pages, provider, id });
+  return NextResponse.json({ 
+    id: project._id.toString(),
+    type,
+    pages,
+    files,
+    brandConfig,
+    layoutPlan
+  });
 }
