@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
+import { auth } from "@/lib/auth";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -73,15 +74,23 @@ export default async function SavedPage({ params }: PageProps) {
       return notFound();
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId || project.userId !== userId) {
+      return notFound();
+    }
+
     if (project.type === "react") {
-      let files = project.files || {};
+      const files = project.files || [];
+      let filesRecord: Record<string, string> = {};
       if (Array.isArray(files)) {
-        files = files.reduce((acc: any, file: any) => {
+        filesRecord = files.reduce((acc: any, file: any) => {
           acc[file.path] = file.content;
           return acc;
         }, {});
       }
-      return <ReactPreview files={files} />;
+      return <ReactPreview files={filesRecord} />;
     }
 
     let htmlToRender = project.html;

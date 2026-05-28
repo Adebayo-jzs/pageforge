@@ -7,6 +7,10 @@ const ProjectSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    title: {
+      type: String,
+      required: false,
+    },
     prompt: {
       type: String,
       required: true,
@@ -14,6 +18,31 @@ const ProjectSchema = new mongoose.Schema(
     html: {
       type: String,
       required: false, // Optional for new multi-page sites
+    },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true, // allows multiple null values
+      lowercase: true,
+      trim: true,
+    },
+    customDomain: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    domainVerified: {
+      type: Boolean,
+      default: false,
+    },
+    deploymentStatus: {
+      type: String,
+      enum: ["live", "paused", "draft"],
+      default: "draft",
+    },
+    lastDeployedAt: {
+      type: Date,
+      required: false,
     },
     type: {
       type: String,

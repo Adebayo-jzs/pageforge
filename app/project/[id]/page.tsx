@@ -16,6 +16,7 @@ import {
 import { useState, useRef, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import TextIcon from "@/components/texticon";
+import ProjectSettings from "@/components/ProjectSettings";
 import {
   SandpackProvider,
   SandpackLayout,
@@ -87,6 +88,15 @@ export default function Workspace({
   const [editError, setEditError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Settings states
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
+  const [domainVerified, setDomainVerified] = useState(false);
+  const [deploymentStatus, setDeploymentStatus] = useState<"live" | "paused" | "draft">("draft");
+  const [lastDeployedAt, setLastDeployedAt] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -149,6 +159,12 @@ export default function Workspace({
 
         setProvider(data.provider || "gemini");
         setCreatedAt(data.createdAt || "");
+        setTitle(data.title || "");
+        setSlug(data.slug || "");
+        setCustomDomain(data.customDomain || "");
+        setDomainVerified(data.domainVerified || false);
+        setDeploymentStatus(data.deploymentStatus || "draft");
+        setLastDeployedAt(data.lastDeployedAt || "");
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -359,12 +375,26 @@ export default function Workspace({
       {/* ───── Left panel ───── */}
       <aside className="w-80 lg:w-[400px] border-r border-landing-border flex flex-col bg-white/40 backdrop-blur-sm shrink-0">
         <div className="p-6 border-b border-landing-border flex justify-between items-center bg-white/40">
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="text-[0.65rem] font-bold text-landing-ink-faint uppercase tracking-[0.2em] hover:text-landing-accent transition-colors cursor-pointer"
-          >
-            ← Dashboard
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="text-[0.65rem] font-bold text-landing-ink-faint uppercase tracking-[0.2em] hover:text-landing-accent transition-colors cursor-pointer"
+            >
+              ← Dashboard
+            </button>
+            <span className="w-1.5 h-1.5 rounded-full bg-landing-border" />
+            <button
+              onClick={() => setShowSettings(true)}
+              title="Project Settings"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-landing-bg hover:bg-landing-border/60 text-landing-ink-muted hover:text-landing-ink transition-all cursor-pointer font-bold text-[10px] uppercase tracking-wider"
+            >
+              <svg className="w-3.5 h-3.5 animate-[spin_8s_linear_infinite] hover:animate-[spin_2s_linear_infinite]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Settings</span>
+            </button>
+          </div>
           <div className="scale-75 origin-right">
             <TextIcon />
           </div>
@@ -438,34 +468,59 @@ export default function Workspace({
 
           <div className="h-px bg-landing-border" />
 
-          {/* Sharing */}
+          {/* Sharing / Deployment */}
           <div className="space-y-4">
-            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">
-              Public Link
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted flex items-center justify-between">
+              <span>Public Live Site</span>
+              {deploymentStatus !== "draft" && (
+                <span className={`w-1.5 h-1.5 rounded-full ${deploymentStatus === "live" ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+              )}
             </h3>
-            <div className="flex items-center gap-2 bg-white border border-landing-border rounded-xl p-2 pl-4 shadow-landing-sm">
-              <input
-                type="text"
-                readOnly
-                value={`${typeof window !== "undefined" ? window.location.origin : ""}/p/${id}`}
-                className="flex-1 bg-transparent text-xs text-landing-ink-faint outline-none truncate font-[350]"
-              />
-              <button
-                onClick={copyLink}
-                title="Copy Link"
-                className="p-3 bg-landing-bg rounded-lg hover:bg-landing-accent hover:text-white transition-all text-landing-ink-muted cursor-pointer"
-              >
-                {copied ? (
-                  <HugeiconsIcon icon={CopyCheckIcon} className="w-3.5 h-3.5" />
-                ) : (
-                  <HugeiconsIcon icon={Link01Icon} className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-            <p className="text-[10px] text-landing-ink-faint italic px-1 leading-relaxed">
-              Generated pages are public by default. Share this link with your
-              team or clients.
-            </p>
+            {deploymentStatus === "draft" || (!slug && !customDomain) ? (
+              <div className="bg-landing-bg/50 border border-dashed border-landing-border rounded-2xl p-4 text-center space-y-3">
+                <p className="text-[11px] text-landing-ink-faint italic leading-relaxed">
+                  This project is currently a draft and has not been published yet.
+                </p>
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="w-full py-2 bg-landing-ink text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-landing-accent transition-all cursor-pointer shadow-landing-sm"
+                >
+                  Configure &amp; Publish
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 bg-white border border-landing-border rounded-xl p-2 pl-4 shadow-landing-sm">
+                  <input
+                    type="text"
+                    readOnly
+                    value={customDomain && domainVerified ? `https://${customDomain}` : `${typeof window !== "undefined" ? window.location.origin : ""}/${slug}`}
+                    className="flex-1 bg-transparent text-xs text-landing-ink outline-none truncate font-mono"
+                  />
+                  <button
+                    onClick={async () => {
+                      const url = customDomain && domainVerified ? `https://${customDomain}` : `${window.location.origin}/${slug}`;
+                      await navigator.clipboard.writeText(url);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    }}
+                    title="Copy Live URL"
+                    className="p-3 bg-landing-bg rounded-lg hover:bg-landing-accent hover:text-white transition-all text-landing-ink-muted cursor-pointer"
+                  >
+                    {copied ? (
+                      <HugeiconsIcon icon={CopyCheckIcon} className="w-3.5 h-3.5" />
+                    ) : (
+                      <HugeiconsIcon icon={Link01Icon} className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-[9px] text-landing-ink-faint italic px-1 leading-relaxed">
+                  {deploymentStatus === "paused" 
+                    ? "Deployment is currently paused. Visitors will see a paused message." 
+                    : "Your site is live! Anyone with this link can view your published design."}
+                </p>
+              </>
+            )}
           </div>
           <div className="space-y-4">
             {/* <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">
@@ -878,6 +933,27 @@ export default function Workspace({
           )}
         </div>
       </div>
+
+      {showSettings && (
+        <ProjectSettings
+          projectId={id}
+          initialTitle={title}
+          initialSlug={slug}
+          initialCustomDomain={customDomain}
+          initialDomainVerified={domainVerified}
+          initialDeploymentStatus={deploymentStatus}
+          initialLastDeployedAt={lastDeployedAt}
+          onClose={() => setShowSettings(false)}
+          onProjectDeleted={() => router.push("/dashboard")}
+          onSettingsUpdate={(updated) => {
+            if (updated.slug !== undefined) setSlug(updated.slug);
+            if (updated.customDomain !== undefined) setCustomDomain(updated.customDomain);
+            if (updated.domainVerified !== undefined) setDomainVerified(updated.domainVerified);
+            if (updated.deploymentStatus !== undefined) setDeploymentStatus(updated.deploymentStatus);
+            if (updated.lastDeployedAt !== undefined) setLastDeployedAt(updated.lastDeployedAt);
+          }}
+        />
+      )}
     </main>
   );
 } 

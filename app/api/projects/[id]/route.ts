@@ -54,11 +54,43 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    const updateData: any = { provider: body.provider };
+    await dbConnect();
+
+    // Validate slug uniqueness if provided
+    if (body.slug !== undefined && body.slug !== null && body.slug !== "") {
+      const slugRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+      if (!slugRegex.test(body.slug)) {
+        return NextResponse.json(
+          { error: "Slug must contain only lowercase letters, numbers, and hyphens" },
+          { status: 400 }
+        );
+      }
+      if (body.slug.length < 3 || body.slug.length > 48) {
+        return NextResponse.json(
+          { error: "Slug must be between 3 and 48 characters" },
+          { status: 400 }
+        );
+      }
+      const existing = await Project.findOne({ slug: body.slug, _id: { $ne: id } });
+      if (existing) {
+        return NextResponse.json(
+          { error: "This slug is already taken. Please choose another." },
+          { status: 409 }
+        );
+      }
+    }
+
+    const updateData: any = {};
+    if (body.provider !== undefined) updateData.provider = body.provider;
     if (body.html !== undefined) updateData.html = body.html;
     if (body.pages !== undefined) updateData.pages = body.pages;
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.slug !== undefined) updateData.slug = body.slug || null;
+    if (body.customDomain !== undefined) updateData.customDomain = body.customDomain || null;
+    if (body.domainVerified !== undefined) updateData.domainVerified = body.domainVerified;
+    if (body.deploymentStatus !== undefined) updateData.deploymentStatus = body.deploymentStatus;
+    if (body.lastDeployedAt !== undefined) updateData.lastDeployedAt = body.lastDeployedAt;
 
-    await dbConnect();
     const project = await Project.findOneAndUpdate(
       { _id: id, userId },
       updateData,
@@ -69,7 +101,7 @@ export async function PUT(
       return NextResponse.json({ error: "Project not found or unauthorized" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, project });
   } catch (error) {
     console.error("Failed to update project:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
