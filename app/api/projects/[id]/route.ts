@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 import { auth } from "@/lib/auth";
+import { isReservedSlug } from "@/lib/reserved-slugs";
 
 export async function GET(
   req: NextRequest,
@@ -69,6 +70,12 @@ export async function PUT(
         return NextResponse.json(
           { error: "Slug must be between 3 and 48 characters" },
           { status: 400 }
+        );
+      }
+      if (isReservedSlug(body.slug)) {
+        return NextResponse.json(
+          { error: `"${body.slug}" is a reserved name and cannot be used as a deployment slug.` },
+          { status: 409 }
         );
       }
       const existing = await Project.findOne({ slug: body.slug, _id: { $ne: id } });

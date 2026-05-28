@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cancel01Icon,
@@ -52,8 +52,13 @@ export default function ProjectSettings({
   const [copied, setCopied] = useState(false);
   const [deleteTyped, setDeleteTyped] = useState("");
 
+  // Slug availability check
+  type SlugCheckState = "idle" | "checking" | "available" | "taken" | "reserved" | "invalid" | "too_short" | "too_long" | "empty";
+  const [slugCheck, setSlugCheck] = useState<SlugCheckState>("idle");
+
   const panelRef = useRef<HTMLDivElement>(null);
   const toastTimeout = useRef<NodeJS.Timeout | null>(null);
+  const slugDebounce = useRef<NodeJS.Timeout | null>(null);
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     if (toastTimeout.current) clearTimeout(toastTimeout.current);
@@ -69,6 +74,57 @@ export default function ProjectSettings({
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [onClose]);
+
+  // Debounced slug availability check
+  useEffect(() => {
+    if (slugDebounce.current) clearTimeout(slugDebounce.current);
+    const trimmed = slug.trim();
+    if (!trimmed) {
+      setSlugCheck("idle");
+      return;
+    }
+    // Instant local checks before hitting API
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(trimmed)) {
+      setSlugCheck("invalid");
+      return;
+    }
+    if (trimmed.length < 3) { setSlugCheck("too_short"); return; }
+    if (trimmed.length > 48) { setSlugCheck("too_long"); return; }
+    // If unchanged from saved value, skip network call
+    if (trimmed === initialSlug) {
+      setSlugCheck("available");
+      return;
+    }
+    setSlugCheck("checking");
+    slugDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/projects/check-slug?slug=${encodeURIComponent(trimmed)}&projectId=${projectId}`
+        );
+        const data = await res.json();
+        if (data.available) {
+          setSlugCheck("available");
+        } else {
+          setSlugCheck(data.reason as SlugCheckState || "taken");
+        }
+      } catch {
+        setSlugCheck("idle");
+      }
+    }, 500);
+    return () => { if (slugDebounce.current) clearTimeout(slugDebounce.current); };
+  }, [slug, projectId, initialSlug]);
+
+  const slugCheckMessage: Record<string, { text: string; color: string }> = {
+    available:  { text: "✓ Available", color: "text-emerald-600" },
+    taken:      { text: "✗ Already taken — choose a different slug", color: "text-red-500" },
+    reserved:   { text: "✗ Reserved by PageForge — choose a different slug", color: "text-red-500" },
+    invalid:    { text: "✗ Only lowercase letters, numbers and hyphens", color: "text-amber-600" },
+    too_short:  { text: "✗ Minimum 3 characters", color: "text-amber-600" },
+    too_long:   { text: "✗ Maximum 48 characters", color: "text-amber-600" },
+    checking:   { text: "Checking availability…", color: "text-landing-ink-faint" },
+    idle:       { text: "", color: "" },
+  };
+  const slugAvailable = slugCheck === "available";
 
   const updateProject = async (data: any) => {
     const res = await fetch(`/api/projects/${projectId}`, {
@@ -306,12 +362,36 @@ export default function ProjectSettings({
                       placeholder="my-portfolio"
                       className="flex-1 py-3 pr-4 text-sm text-landing-ink bg-transparent outline-none placeholder:text-landing-ink-faint/50 font-medium"
                     />
+                    {/* Inline availability indicator */}
+                    {slug && (
+                      <span className="pr-3 shrink-0">
+                        {slugCheck === "checking" ? (
+                          <svg className="w-3.5 h-3.5 text-landing-ink-faint animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="40" strokeDashoffset="10" />
+                          </svg>
+                        ) : slugCheck === "available" ? (
+                          <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : slugCheck !== "idle" ? (
+                          <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        ) : null}
+                      </span>
+                    )}
                   </div>
                 </div>
+                {/* Availability message */}
+                {slug && slugCheckMessage[slugCheck]?.text && (
+                  <p className={`text-[10px] mt-1.5 font-medium ${slugCheckMessage[slugCheck].color}`}>
+                    {slugCheckMessage[slugCheck].text}
+                  </p>
+                )}
                 {slugError && (
                   <p className="text-[10px] text-red-500 mt-1.5 font-medium animate-shake">{slugError}</p>
                 )}
-                {slug && !slugError && (
+                {slug && slugAvailable && !slugError && (
                   <div className="flex items-center gap-2 mt-2 px-1">
                     <span className="text-[10px] text-landing-ink-faint">Preview:</span>
                     <span className="text-[10px] text-landing-accent font-bold font-mono truncate">
@@ -324,7 +404,7 @@ export default function ProjectSettings({
               <div className="flex gap-2">
                 <button
                   onClick={handleDeploy}
-                  disabled={deploying || !slug.trim()}
+                  disabled={deploying || !slug.trim() || !slugAvailable}
                   className="flex-1 bg-landing-ink text-white font-bold py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed shadow-landing-md hover:bg-landing-accent hover:-translate-y-0.5 transition-all text-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {deploying ? (

@@ -1,19 +1,18 @@
 import { notFound } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
+import { isReservedSlug } from "@/lib/reserved-slugs";
 
 interface PageProps {
   params: Promise<{ slug: string; subpath: string[] }>;
 }
 
-const reservedSlugs = [
-  "api", "dashboard", "how-it-works", "login", "new", "p", "policy", "pricing", "project", "register"
-];
+
 
 export default async function DeployedSubPage({ params }: PageProps) {
   const { slug, subpath } = await params;
 
-  if (reservedSlugs.includes(slug)) {
+  if (isReservedSlug(slug)) {
     return notFound();
   }
 

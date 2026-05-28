@@ -3,20 +3,18 @@ import { notFound } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 import ReactPreview from "../p/[id]/ReactPreview";
+import { isReservedSlug } from "@/lib/reserved-slugs";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// System reserved paths
-const reservedSlugs = [
-  "api", "dashboard", "how-it-works", "login", "new", "p", "policy", "pricing", "project", "register"
-];
+
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  if (reservedSlugs.includes(slug)) {
+  if (isReservedSlug(slug)) {
     return {};
   }
 
@@ -50,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function DeployedPage({ params }: PageProps) {
   const { slug } = await params;
 
-  if (reservedSlugs.includes(slug)) {
+  if (isReservedSlug(slug)) {
     return notFound();
   }
 
