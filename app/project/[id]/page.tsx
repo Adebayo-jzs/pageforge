@@ -11,6 +11,7 @@ import {
   SmartPhone01Icon,
   TabletIcon,
   Monitor,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 import { useState, useRef, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
@@ -81,6 +82,10 @@ export default function Workspace({
   const [copied, setCopied] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [editPrompt, setEditPrompt] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const lineNumRef = useRef<HTMLDivElement>(null);
@@ -152,6 +157,35 @@ export default function Workspace({
     }
     loadProject();
   }, [id]);
+
+  const applyEdit = async () => {
+    if (!editPrompt.trim() || isEditing) return;
+    setIsEditing(true);
+    setEditError("");
+    try {
+      const res = await fetch("/api/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html, instruction: editPrompt }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Edit failed");
+      setHtml(data.html);
+      setEditableCode(formatHtml(data.html));
+      setActiveTab("preview");
+      setEditPrompt("");
+      // Persist the updated HTML
+      await fetch(`/api/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html: data.html }),
+      });
+    } catch (e: any) {
+      setEditError(e.message);
+    } finally {
+      setIsEditing(false);
+    }
+  };
 
   const regenerate = async () => {
     setIsRegenerating(true);
@@ -236,7 +270,7 @@ export default function Workspace({
         doc.close();
       }
     }
-  }, [html, loading]);
+  }, [html, loading, refreshKey]);
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
@@ -283,15 +317,7 @@ export default function Workspace({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const downloadHtml = () => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(
-      new Blob([editableCode || html], { type: "text/html" })
-    );
-    a.download = "landing-page.html";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
+
 
   if (loading) {
     return (
@@ -347,18 +373,13 @@ export default function Workspace({
         <div className="flex-1 p-8 flex flex-col gap-10 overflow-y-auto">
           {/* Prompt block */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-landing-accent animate-pulse shadow-[0_0_8px_rgba(26,23,20,0.4)]" />
-              <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">
-                Project Vision
-              </h3>
-            </div>
+             
             <div className="bg-white/80 border border-landing-border rounded-2xl p-6 shadow-landing-sm hover:shadow-landing-md transition-shadow">
               <div className="max-h-64 overflow-y-auto pr-2 custom-scrollbar text-sm text-landing-ink-muted leading-relaxed font-[350] italic">
-                "{prompt}"
+                &quot;{prompt}&quot;
               </div>
             </div>
-            <div className="flex flex-wrap gap-4 pt-1">
+            {/* <div className="flex flex-wrap gap-4 pt-1">
               <div className="px-3 py-1 bg-landing-bg rounded-lg">
                 <span className="text-[10px] text-landing-ink-faint font-bold uppercase tracking-widest">
                   AI:{" "}
@@ -373,10 +394,10 @@ export default function Workspace({
                   </span>
                 </span>
               </div>
-            </div>
+            </div> */}
           </div>
 
-          <div className="h-px bg-landing-border" />
+          {/* <div className="h-px bg-landing-border" /> */}
 
           {/* Pages */}
           {/* {pages.length > 1 && (
@@ -413,30 +434,7 @@ export default function Workspace({
           )} */}
 
           {/* Actions */}
-          <div className="space-y-4">
-            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">
-              Refinement
-            </h3>
-            <button
-              onClick={regenerate}
-              disabled={isRegenerating}
-              className="w-full bg-landing-accent text-white font-bold py-4 rounded-full disabled:opacity-40 disabled:cursor-not-allowed shadow-landing-md hover:bg-landing-accent/90 hover:-translate-y-0.5 transition-all text-sm flex items-center justify-center gap-3 cursor-pointer"
-            >
-              {isRegenerating ? (
-                <>
-                  <HugeiconsIcon icon={ReloadIcon} className="animate-spin w-4 h-4" />
-                  Regenerating...
-                </>
-              ) : (
-                <>
-                  <HugeiconsIcon icon={ReloadIcon} className="w-4 h-4" />
-                  Regenerate Design
-                </>
-              )}
-            </button>
-            <input type="text" name="437 " id="" />
-             
-          </div>
+          
 
           <div className="h-px bg-landing-border" />
 
@@ -468,6 +466,69 @@ export default function Workspace({
               Generated pages are public by default. Share this link with your
               team or clients.
             </p>
+          </div>
+          <div className="space-y-4">
+            {/* <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-landing-ink-muted">
+              Refinement
+            </h3>
+            <button
+              onClick={regenerate}
+              disabled={isRegenerating}
+              className="w-full bg-landing-accent text-white font-bold py-4 rounded-full disabled:opacity-40 disabled:cursor-not-allowed shadow-landing-md hover:bg-landing-accent/90 hover:-translate-y-0.5 transition-all text-sm flex items-center justify-center gap-3 cursor-pointer"
+            >
+              {isRegenerating ? (
+                <>
+                  <HugeiconsIcon icon={ReloadIcon} className="animate-spin w-4 h-4" />
+                  Regenerating...
+                </>
+              ) : (
+                <>
+                  <HugeiconsIcon icon={ReloadIcon} className="w-4 h-4" />
+                  Regenerate Design
+                </>
+              )}
+            </button> */}
+            {/* Edit with Prompt */}
+            <div className="space-y-2 pt-1 fixed bottom-0 right-0 left-0 p-2">
+              {editError && (
+                <p className="text-[10px] text-red-500 px-1">{editError}</p>
+              )}
+              {projectType === "react" && (
+                <p className="text-[10px] text-landing-ink-faint italic px-1">
+                  Prompt editing is available for HTML projects only.
+                </p>
+              )}
+              <div className="relative">
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      applyEdit();
+                    }
+                  }}
+                  placeholder="Describe a change… e.g. Make the hero background dark blue"
+                  rows={3}
+                  disabled={isEditing || projectType === "react"}
+                  className="w-full bg-white border border-landing-border rounded-2xl px-4 pt-3 pb-10 text-sm text-landing-ink placeholder:text-landing-ink-faint outline-none resize-none leading-relaxed shadow-landing-sm focus:border-landing-accent/50 focus:shadow-landing-md transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                />
+                <button
+                  onClick={applyEdit}
+                  disabled={isEditing || !editPrompt.trim() || projectType === "react"}
+                  title={projectType === "react" ? "Prompt editing is for HTML projects" : "Apply edit (Enter)"}
+                  className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 px-3 py-1.5 bg-landing-ink text-white text-[11px] font-bold rounded-full transition-all hover:bg-landing-accent disabled:opacity-30 disabled:cursor-not-allowed shadow-landing-sm cursor-pointer"
+                >
+                  {isEditing ? (
+                    <HugeiconsIcon icon={ReloadIcon} className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <HugeiconsIcon icon={SparklesIcon} className="w-3 h-3" />
+                  )}
+                  {isEditing ? "Applying…" : "Apply"}
+                </button>
+              </div>
+              
+            </div>
           </div>
         </div>
       </aside>
@@ -618,13 +679,7 @@ export default function Workspace({
           )}
 
           <div className="flex gap-3 ml-auto">
-            <button
-              onClick={downloadHtml}
-              className="bg-landing-bg text-landing-ink-muted border border-landing-border hover:text-white hover:bg-landing-ink px-4 py-2 rounded-full transition-all flex items-center gap-2 text-xs font-bold cursor-pointer shadow-landing-sm"
-            >
-              <HugeiconsIcon icon={Download01Icon} className="w-4 h-4" />
-              <span className="hidden sm:inline">Export HTML</span>
-            </button>
+             
 
             {activeTab === "code" ? (
               <button
@@ -640,14 +695,7 @@ export default function Workspace({
               </button>
             ) : (
               <button
-                onClick={() => {
-                  if (iframeRef.current) {
-                    const doc = iframeRef.current.contentDocument!;
-                    doc.open();
-                    doc.write(editableCode || html);
-                    doc.close();
-                  }
-                }}
+                onClick={() => setRefreshKey((k) => k + 1)}
                 className="bg-landing-bg text-landing-ink-muted border border-landing-border hover:bg-white px-4 py-2 rounded-full transition-all flex items-center gap-2 text-xs font-bold cursor-pointer shadow-landing-sm"
               >
                 <HugeiconsIcon icon={ReloadIcon} className="w-4 h-4" />
