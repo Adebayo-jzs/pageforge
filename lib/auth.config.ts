@@ -29,7 +29,9 @@ export default {
                            nextUrl.pathname.startsWith("/og-image.png") ||
                            nextUrl.pathname.startsWith("/sitemap.xml") ||
                            nextUrl.pathname.startsWith("/robots.txt") ||
-                           nextUrl.pathname.startsWith("/p/");
+                           nextUrl.pathname.startsWith("/p/") ||
+                           nextUrl.pathname.startsWith("/domain/") ||
+                           /^\/[^/]+$/.test(nextUrl.pathname);
 
       if (isAuthPage) {
         if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));

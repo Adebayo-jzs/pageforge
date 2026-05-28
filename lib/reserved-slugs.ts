@@ -15,6 +15,7 @@ export const RESERVED_SLUGS = new Set([
   "pricing",
   "project",
   "register",
+  "domain",
   // Generated file routes
   "robots.txt",
   "sitemap.xml",

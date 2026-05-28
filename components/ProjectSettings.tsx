@@ -227,12 +227,28 @@ export default function ProjectSettings({
   const handleVerifyDomain = async () => {
     setVerifyingDomain(true);
     try {
-      // Simulate verification delay
-      await new Promise((r) => setTimeout(r, 2000));
-      await updateProject({ domainVerified: true });
-      setDomainVerified(true);
-      onSettingsUpdate({ domainVerified: true });
-      showToast("Domain verified successfully!");
+      const res = await fetch("/api/projects/verify-domain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Verification request failed");
+      }
+
+      if (data.verified) {
+        setDomainVerified(true);
+        onSettingsUpdate({ domainVerified: true });
+        showToast("Domain verified successfully! 🎉");
+      } else {
+        // Real DNS failure — show the hint from the server
+        const message = data.hint
+          ? `${data.error}. ${data.hint}`
+          : data.error || "DNS record not found — check your CNAME settings";
+        showToast(message, "error");
+      }
     } catch (e: any) {
       showToast(e.message, "error");
     } finally {
@@ -549,7 +565,7 @@ export default function ProjectSettings({
                           </div>
                           <div>
                             <p className="text-landing-ink-faint font-medium">Value</p>
-                            <p className="font-bold text-landing-accent font-mono truncate">cname.pageforge.ai</p>
+                            <p className="font-bold text-landing-accent font-mono truncate">celerify.vercel.app</p>
                           </div>
                         </div>
                       </div>
