@@ -1,4 +1,4 @@
-# ⚡ PageForge
+# ⚡ Celerify
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
@@ -6,7 +6,7 @@
 
 AI-powered landing page generator — describe your product, get a stunning, production-ready HTML page in seconds.
 
-PageForge is built with Next.js 16 and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
+Celerify is built with Next.js 16 and powered by Gemini AI. Simply describe your product and get a complete, beautifully designed, responsive HTML landing page. Features a live preview, built-in code editor, and one-click download.
 
 ## Features
 

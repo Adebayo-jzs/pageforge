@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
+import { auth } from "@/lib/auth";
 
 interface PageProps {
   params: Promise<{ id: string; slug: string[] }>;
@@ -20,6 +21,13 @@ export default async function SubPage({ params }: PageProps) {
     const project = await Project.findById(id);
 
     if (!project || !project.pages || project.pages.length === 0) {
+      return notFound();
+    }
+
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId || project.userId !== userId) {
       return notFound();
     }
 

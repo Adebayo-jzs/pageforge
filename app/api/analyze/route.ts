@@ -4,7 +4,7 @@ import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
 
 const SYSTEM_PROMPT = `
-You are a product management assistant for "PageForge", an AI landing page generator.
+You are a product management assistant for "Celerify", an AI landing page generator.
 Given a raw user prompt describing a product, SaaS, or local business, your job is to identify 4 to 6 pieces of information (business details, contact info, social links, feature highlights, etc.) that would be highly useful to ask the user for before generating their landing page.
 
 RETURN ONLY VALID JSON. The JSON must be an array of objects.

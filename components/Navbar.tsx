@@ -310,7 +310,7 @@ export default function Navbar() {
               </button>
               <div className="mb-8">
                 <h2 className="text-2xl font-instrument mb-2 text-landing-ink tracking-tight">Create New Project</h2>
-                <p className="text-sm text-landing-ink-muted">Describe what you want to build and PageForge will generate it for you.</p>
+                <p className="text-sm text-landing-ink-muted">Describe what you want to build and Celerify will generate it for you.</p>
               </div>
               <GenerateForm />
             </div>

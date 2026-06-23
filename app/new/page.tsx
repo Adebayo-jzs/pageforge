@@ -56,6 +56,7 @@ function NewPageContent() {
   const [analyzing, setAnalyzing] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [projectType, setProjectType] = useState<"html" | "react">("react");
 
   useEffect(() => {
     async function loadFields() {
@@ -76,7 +77,7 @@ function NewPageContent() {
           setFields(data.fields);
           const initialAnswers: Record<string, string> = {};
           data.fields.forEach((f: DynamicField) => {
-            initialAnswers[f.id] = "";
+            initialAnswers[f.id] = f.placeholder;
           });
           setAnswers(initialAnswers);
         }
@@ -113,7 +114,7 @@ function NewPageContent() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: fullPrompt }),
+        body: JSON.stringify({ prompt: fullPrompt, type: projectType }),
       });
 
       const data = await res.json();
@@ -201,6 +202,22 @@ function NewPageContent() {
           <div className="bg-landing-bg/50 border border-landing-border rounded-2xl p-5 mb-10 group transition-all hover:bg-white hover:shadow-landing-sm">
             <p className="text-[0.65rem] font-bold text-landing-accent uppercase tracking-widest mb-2">Original Vision</p>
             <p className="text-[0.95rem] text-landing-ink-muted leading-relaxed line-clamp-2 font-[350] italic group-hover:text-landing-ink transition-colors">"{prompt}"</p>
+          </div>
+
+          <div className="mb-10">
+            <p className="text-[0.7rem] font-bold text-landing-ink uppercase tracking-widest ml-1 mb-3">Project Tech Stack</p>
+            <div className="flex gap-4">
+              <label className={`flex-1 flex flex-col p-4 rounded-xl border transition-all cursor-pointer ${projectType === 'react' ? 'border-landing-accent bg-landing-accent/5' : 'border-landing-border hover:border-landing-ink/30 bg-white'}`}>
+                <input type="radio" name="projectType" value="react" checked={projectType === 'react'} onChange={() => setProjectType('react')} className="hidden" />
+                <span className="font-bold text-sm mb-1 text-landing-ink">React (Vite)</span>
+                <span className="text-xs text-landing-ink-muted">Premium UI, modular components (Recommended)</span>
+              </label>
+              <label className={`flex-1 flex flex-col p-4 rounded-xl border transition-all cursor-pointer ${projectType === 'html' ? 'border-landing-accent bg-landing-accent/5' : 'border-landing-border hover:border-landing-ink/30 bg-white'}`}>
+                <input type="radio" name="projectType" value="html" checked={projectType === 'html'} onChange={() => setProjectType('html')} className="hidden" />
+                <span className="font-bold text-sm mb-1 text-landing-ink">Plain HTML</span>
+                <span className="text-xs text-landing-ink-muted">Single file, simple output</span>
+              </label>
+            </div>
           </div>
 
           {fields.length > 0 && field && (

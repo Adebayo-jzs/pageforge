@@ -1,6 +1,6 @@
-# Contributing to PageForge
+# Contributing to Celerify
 
-First off, thank you for considering contributing to PageForge! It's people like you that make PageForge such a great tool.
+First off, thank you for considering contributing to Celerify! It's people like you that make Celerify such a great tool.
 
 ## How Can I Contribute?
 

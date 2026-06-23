@@ -193,7 +193,7 @@ export default function RegisterPage() {
             </Link>
           </p>
           <div className="h-px w-8 bg-landing-border" />
-          <span className="text-[0.65rem] text-landing-ink-faint font-bold tracking-widest uppercase">v1.2.0 • PageForge AI</span>
+          <span className="text-[0.65rem] text-landing-ink-faint font-bold tracking-widest uppercase">v1.2.0 • Celerify AI</span>
         </div>
       </div>
     </main>
