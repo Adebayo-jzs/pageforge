@@ -1,7 +1,7 @@
-# PageForge Project Documentation
+# Celerify Project Documentation
 
 ## 1. Project Overview
-**PageForge** is an AI-powered website generator built with **Next.js 16 (App Router)** and **MongoDB**. The platform allows users to input natural language prompts, which are then analyzed and enhanced to generate production-ready, multi-page HTML websites.
+**Celerify** is an AI-powered website generator built with **Next.js 16 (App Router)** and **MongoDB**. The platform allows users to input natural language prompts, which are then analyzed and enhanced to generate production-ready, multi-page HTML websites.
 
 These sites follow premium design principles (inspired by Stripe, Linear, and Vercel), utilizing a sophisticated system prompt to ensure high-quality typography, layouts, and aesthetics. The project is designed to generate complete, structured websites rather than just code snippets.
 
@@ -30,7 +30,7 @@ This is the core schema that stores the generated websites.
 ## 4. AI Generation & Refinement
 
 ### Prompt Refinement Flow (`app/new/page.tsx`)
-When a user submits a prompt, PageForge doesn't just generate a site immediately. It first analyzes the prompt:
+When a user submits a prompt, Celerify doesn't just generate a site immediately. It first analyzes the prompt:
 1. **Analysis:** The AI identifies missing details or areas where user input could improve the design.
 2. **Dynamic Fields:** Users are presented with a series of refinement steps (e.g., "What is your brand color?", "List 3 key features") to provide more context.
 3. **Enhanced Generation:** These details are appended to the original prompt, resulting in a more personalized and accurate website.
@@ -52,7 +52,7 @@ The project workspace provides a powerful environment for viewing and tweaking g
 
 ### Rendering Engine (`app/p/[id]/page.tsx`)
 - **Sandboxed Execution:** Sites are rendered within an iframe using `srcDoc` for security and isolation.
-- **Navigation Handling:** The workspace uses a `postMessage` system to capture clicks on internal links within the iframe, allowing the parent PageForge app to switch pages in the preview seamlessly.
+- **Navigation Handling:** The workspace uses a `postMessage` system to capture clicks on internal links within the iframe, allowing the parent Celerify app to switch pages in the preview seamlessly.
 
 ## 6. Key Features
 - **Dashboard:** A centralized hub to manage projects, view recents, and start new concepts.
@@ -61,4 +61,4 @@ The project workspace provides a powerful environment for viewing and tweaking g
 - **Dynamic Site Hosting:** Generated sites are instantly viewable via custom dynamic routes (`/p/[id]`).
 
 ## Conclusion
-PageForge elegantly bridges the gap between natural language prompts and polished web applications by wrapping a strictly controlled LLM prompt system inside a modern Next.js + MongoDB stack.
+Celerify elegantly bridges the gap between natural language prompts and polished web applications by wrapping a strictly controlled LLM prompt system inside a modern Next.js + MongoDB stack.

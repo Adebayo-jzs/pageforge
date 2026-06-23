@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Cancel01Icon,
@@ -19,12 +19,27 @@ interface ProjectSettingsProps {
   initialLastDeployedAt: string;
   onClose: () => void;
   onProjectDeleted: () => void;
-  onSettingsUpdate: (data: any) => void;
+  onSettingsUpdate: (data: ProjectSettingsUpdate) => void;
+}
+
+interface ProjectSettingsUpdate {
+  slug?: string;
+  customDomain?: string;
+  domainVerified?: boolean;
+  deploymentStatus?: "live" | "paused" | "draft";
+  lastDeployedAt?: string;
+}
+
+type ProjectUpdatePayload = ProjectSettingsUpdate & {
+  title?: string;
+};
+
+function getErrorMessage(error: unknown, fallback = "Something went wrong") {
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function ProjectSettings({
   projectId,
-  initialTitle,
   initialSlug,
   initialCustomDomain,
   initialDomainVerified,
@@ -34,7 +49,10 @@ export default function ProjectSettings({
   onProjectDeleted,
   onSettingsUpdate,
 }: ProjectSettingsProps) {
-  const [title, setTitle] = useState(initialTitle || "");
+  const cnameTarget =
+    process.env.NEXT_PUBLIC_VERCEL_CNAME_TARGET || "cname.vercel-dns.com";
+  const apexARecord = process.env.NEXT_PUBLIC_VERCEL_A_RECORD || "76.76.21.21";
+
   const [slug, setSlug] = useState(initialSlug || "");
   const [customDomain, setCustomDomain] = useState(initialCustomDomain || "");
   const [domainVerified, setDomainVerified] = useState(initialDomainVerified);
@@ -49,7 +67,7 @@ export default function ProjectSettings({
   const [slugError, setSlugError] = useState("");
   const [domainError, setDomainError] = useState("");
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedText, setCopiedText] = useState("");
   const [deleteTyped, setDeleteTyped] = useState("");
 
   // Slug availability check
@@ -117,7 +135,7 @@ export default function ProjectSettings({
   const slugCheckMessage: Record<string, { text: string; color: string }> = {
     available:  { text: "✓ Available", color: "text-emerald-600" },
     taken:      { text: "✗ Already taken — choose a different slug", color: "text-red-500" },
-    reserved:   { text: "✗ Reserved by PageForge — choose a different slug", color: "text-red-500" },
+    reserved:   { text: "✗ Reserved by Celerify — choose a different slug", color: "text-red-500" },
     invalid:    { text: "✗ Only lowercase letters, numbers and hyphens", color: "text-amber-600" },
     too_short:  { text: "✗ Minimum 3 characters", color: "text-amber-600" },
     too_long:   { text: "✗ Maximum 48 characters", color: "text-amber-600" },
@@ -126,7 +144,7 @@ export default function ProjectSettings({
   };
   const slugAvailable = slugCheck === "available";
 
-  const updateProject = async (data: any) => {
+  const updateProject = async (data: ProjectUpdatePayload) => {
     const res = await fetch(`/api/projects/${projectId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -156,30 +174,12 @@ export default function ProjectSettings({
       setLastDeployedAt(now);
       onSettingsUpdate({ slug, deploymentStatus: "live", lastDeployedAt: now });
       showToast("Project deployed successfully!");
-    } catch (e: any) {
-      setSlugError(e.message);
-      showToast(e.message, "error");
+    } catch (error) {
+      const message = getErrorMessage(error, "Deploy failed");
+      setSlugError(message);
+      showToast(message, "error");
     } finally {
       setDeploying(false);
-    }
-  };
-
-  // ── Save slug only ──
-  const handleSaveSlug = async () => {
-    if (!slug.trim()) {
-      setSlugError("Slug cannot be empty");
-      return;
-    }
-    setSlugError("");
-    setSaving(true);
-    try {
-      await updateProject({ slug: slug.trim().toLowerCase() });
-      onSettingsUpdate({ slug });
-      showToast("Slug saved!");
-    } catch (e: any) {
-      setSlugError(e.message);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -192,33 +192,44 @@ export default function ProjectSettings({
       setDeploymentStatus(newStatus);
       onSettingsUpdate({ deploymentStatus: newStatus });
       showToast(newStatus === "live" ? "Deployment resumed!" : "Deployment paused");
-    } catch (e: any) {
-      showToast(e.message, "error");
+    } catch (error) {
+      showToast(getErrorMessage(error, "Deployment update failed"), "error");
     } finally {
       setSaving(false);
     }
   };
 
   // ── Custom domain ──
+  // domainInput is the draft value in the text field; customDomain is the saved/committed value.
+  const [domainInput, setDomainInput] = useState(initialCustomDomain || "");
+
   const handleSaveDomain = async () => {
-    if (!customDomain.trim()) {
+    const trimmed = domainInput
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\/.*$/, "")
+      .replace(/\.$/, "");
+    if (!trimmed) {
       setDomainError("Please enter a domain");
       return;
     }
-    const domainPattern = /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
-    if (!domainPattern.test(customDomain.trim())) {
+    const domainPattern = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/;
+    if (!domainPattern.test(trimmed)) {
       setDomainError("Please enter a valid domain (e.g. www.example.com)");
       return;
     }
     setDomainError("");
     setSaving(true);
     try {
-      await updateProject({ customDomain: customDomain.trim(), domainVerified: false });
+      await updateProject({ customDomain: trimmed, domainVerified: false });
+      setCustomDomain(trimmed);
+      setDomainInput(trimmed);
       setDomainVerified(false);
-      onSettingsUpdate({ customDomain, domainVerified: false });
+      onSettingsUpdate({ customDomain: trimmed, domainVerified: false });
       showToast("Domain saved! Add the DNS records below, then verify.");
-    } catch (e: any) {
-      setDomainError(e.message);
+    } catch (error) {
+      setDomainError(getErrorMessage(error, "Domain update failed"));
     } finally {
       setSaving(false);
     }
@@ -243,14 +254,13 @@ export default function ProjectSettings({
         onSettingsUpdate({ domainVerified: true });
         showToast("Domain verified successfully! 🎉");
       } else {
-        // Real DNS failure — show the hint from the server
         const message = data.hint
           ? `${data.error}. ${data.hint}`
           : data.error || "DNS record not found — check your CNAME settings";
         showToast(message, "error");
       }
-    } catch (e: any) {
-      showToast(e.message, "error");
+    } catch (error) {
+      showToast(getErrorMessage(error, "Verification request failed"), "error");
     } finally {
       setVerifyingDomain(false);
     }
@@ -261,11 +271,12 @@ export default function ProjectSettings({
     try {
       await updateProject({ customDomain: "", domainVerified: false });
       setCustomDomain("");
+      setDomainInput("");
       setDomainVerified(false);
       onSettingsUpdate({ customDomain: "", domainVerified: false });
       showToast("Domain removed");
-    } catch (e: any) {
-      showToast(e.message, "error");
+    } catch (error) {
+      showToast(getErrorMessage(error, "Domain removal failed"), "error");
     } finally {
       setSaving(false);
     }
@@ -278,19 +289,29 @@ export default function ProjectSettings({
       const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       onProjectDeleted();
-    } catch (e: any) {
-      showToast(e.message, "error");
+    } catch (error) {
+      showToast(getErrorMessage(error, "Delete failed"), "error");
       setDeleting(false);
     }
   };
 
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedText(text);
+    setTimeout(() => {
+      setCopiedText((prev) => (prev === text ? "" : prev));
+    }, 2000);
   };
 
   const deployUrl = slug ? `${typeof window !== "undefined" ? window.location.origin : ""}/${slug}` : "";
+  const domainParts = customDomain.split(".");
+  const dnsRecordName =
+    domainParts.length > 2
+      ? domainParts[0]
+      : customDomain.startsWith("www.")
+        ? "www"
+        : "@";
+  const isLikelyApexDomain = customDomain && domainParts.length === 2;
 
   const statusConfig = {
     live: { color: "bg-emerald-500", ring: "ring-emerald-500/20", text: "text-emerald-600", label: "Live", bgLight: "bg-emerald-50" },
@@ -475,7 +496,7 @@ export default function ProjectSettings({
                   onClick={() => copyToClipboard(deployUrl)}
                   className="p-2.5 bg-landing-bg rounded-lg hover:bg-landing-accent hover:text-white transition-all text-landing-ink-muted cursor-pointer"
                 >
-                  <HugeiconsIcon icon={copied ? CopyCheckIcon : CopyIcon} className="w-3 h-3" />
+                  <HugeiconsIcon icon={copiedText === deployUrl ? CopyCheckIcon : CopyIcon} className="w-3 h-3" />
                 </button>
               </div>
             )}
@@ -504,20 +525,27 @@ export default function ProjectSettings({
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        value={customDomain}
+                        value={domainInput}
                         onChange={(e) => {
-                          setCustomDomain(e.target.value.trim());
+                          setDomainInput(e.target.value);
                           setDomainError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && domainInput.trim()) handleSaveDomain();
                         }}
                         placeholder="www.myproject.com"
                         className="flex-1 bg-white border border-landing-border rounded-xl px-4 py-3 text-sm text-landing-ink outline-none placeholder:text-landing-ink-faint/50 shadow-landing-sm focus:border-landing-accent/40 focus:shadow-landing-md transition-all font-medium"
                       />
                       <button
                         onClick={handleSaveDomain}
-                        disabled={saving || !customDomain.trim()}
+                        disabled={saving || !domainInput.trim()}
                         className="px-5 py-3 bg-landing-ink text-white rounded-xl font-bold text-xs hover:bg-landing-accent transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        Add
+                        {saving ? (
+                          <HugeiconsIcon icon={ReloadIcon} className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          "Add"
+                        )}
                       </button>
                     </div>
                     {domainError && (
@@ -557,17 +585,44 @@ export default function ProjectSettings({
                         <div className="grid grid-cols-3 gap-2 text-[11px]">
                           <div>
                             <p className="text-landing-ink-faint font-medium">Type</p>
-                            <p className="font-bold text-landing-ink font-mono">CNAME</p>
+                            <p className="font-bold text-landing-ink font-mono mt-0.5">
+                              {isLikelyApexDomain ? "A" : "CNAME"}
+                            </p>
                           </div>
                           <div>
                             <p className="text-landing-ink-faint font-medium">Name</p>
-                            <p className="font-bold text-landing-ink font-mono truncate">{customDomain.startsWith("www.") ? "www" : "@"}</p>
+                            <div className="flex items-center gap-1 group mt-0.5">
+                              <p className="font-bold text-landing-ink font-mono truncate">{dnsRecordName}</p>
+                              <button
+                                onClick={() => copyToClipboard(dnsRecordName)}
+                                className="p-1 rounded text-landing-ink-faint hover:bg-landing-border/60 hover:text-landing-ink transition-all cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100 -ml-0.5"
+                                title="Copy Name"
+                              >
+                                <HugeiconsIcon icon={copiedText === dnsRecordName ? CopyCheckIcon : CopyIcon} className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                           <div>
                             <p className="text-landing-ink-faint font-medium">Value</p>
-                            <p className="font-bold text-landing-accent font-mono truncate">celerify.vercel.app</p>
+                            <div className="flex items-center gap-1 group mt-0.5">
+                              <p className="font-bold text-landing-accent font-mono truncate">
+                                {isLikelyApexDomain ? apexARecord : cnameTarget}
+                              </p>
+                              <button
+                                onClick={() => copyToClipboard(isLikelyApexDomain ? apexARecord : cnameTarget)}
+                                className="p-1 rounded text-landing-ink-faint hover:bg-landing-border/60 hover:text-landing-accent transition-all cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100 -ml-0.5"
+                                title="Copy Value"
+                              >
+                                <HugeiconsIcon icon={copiedText === (isLikelyApexDomain ? apexARecord : cnameTarget) ? CopyCheckIcon : CopyIcon} className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
                         </div>
+                        {!isLikelyApexDomain && dnsRecordName !== "www" && (
+                          <p className="text-[10px] text-landing-ink-faint leading-relaxed">
+                            If your DNS provider asks for the full host, use {customDomain}.
+                          </p>
+                        )}
                       </div>
                       <button
                         onClick={handleVerifyDomain}

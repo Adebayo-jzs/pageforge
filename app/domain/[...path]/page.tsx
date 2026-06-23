@@ -8,6 +8,23 @@ interface PageProps {
   params: Promise<{ path: string[] }>;
 }
 
+interface ProjectFile {
+  path: string;
+  content: string;
+}
+
+interface ProjectPage {
+  path: string;
+  html?: string;
+}
+
+interface RenderableProject {
+  type?: "html" | "react";
+  files?: ProjectFile[];
+  pages?: ProjectPage[];
+  html?: string;
+}
+
 /**
  * Serves pages for custom-domain requests.
  * The middleware rewrites e.g. www.mysite.com/about → /_domains/about
@@ -20,16 +37,15 @@ export default async function CustomDomainPage({ params }: PageProps) {
   if (!customDomain) return notFound();
 
   const { path } = await params;
-  const subpath = path ? "/" + path.join("/") : "/";
+  const subpath = !path || path[0] === "__root" ? "/" : "/" + path.join("/");
 
   try {
     await dbConnect();
 
     const project = await Project.findOne({
       customDomain: customDomain.toLowerCase(),
-      domainVerified: true,
       deploymentStatus: "live",
-    }).lean();
+    }).lean<RenderableProject | null>();
 
     if (!project) return notFound();
 
@@ -37,8 +53,8 @@ export default async function CustomDomainPage({ params }: PageProps) {
     if (project.type === "react") {
       const files = project.files || [];
       const filesRecord: Record<string, string> = Array.isArray(files)
-        ? files.reduce((acc: any, f: any) => {
-            acc[f.path] = f.content;
+        ? files.reduce<Record<string, string>>((acc, file) => {
+            acc[file.path] = file.content;
             return acc;
           }, {})
         : {};
@@ -52,13 +68,13 @@ export default async function CustomDomainPage({ params }: PageProps) {
       // Match the requested subpath to a page
       const page =
         subpath === "/"
-          ? project.pages.find((p: any) => p.path === "/" || p.path === "index.html") ??
+          ? project.pages.find((page) => page.path === "/" || page.path === "index.html") ??
             project.pages[0]
           : project.pages.find(
-              (p: any) =>
-                p.path === subpath ||
-                p.path === subpath.replace(/^\//, "") ||
-                "/" + p.path === subpath
+              (page) =>
+                page.path === subpath ||
+                page.path === subpath.replace(/^\//, "") ||
+                "/" + page.path === subpath
             );
 
       if (page?.html) {

@@ -1,5 +1,5 @@
 /**
- * Slugs that are reserved for PageForge's own routes.
+ * Slugs that are reserved for Celerify's own routes.
  * A user-chosen deployment slug must never match any of these.
  * Keep this list in sync with the actual folders inside /app.
  */

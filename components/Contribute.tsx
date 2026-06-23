@@ -24,7 +24,7 @@ export default function Contribute() {
             </h2>
             
             <p className="text-[1.1rem] text-landing-ink-muted max-w-[480px] leading-[1.7] font-[350] mb-10 animate-[fade-up_.8s_.3s_ease_both]">
-              PageForge is now open-source. Join a community of developers, designers, and AI enthusiasts building the world's most advanced AI page generator.
+              Celerify is now open-source. Join a community of developers, designers, and AI enthusiasts building the world's most advanced AI page generator.
             </p>
 
             <div className="flex flex-wrap gap-4 animate-[fade-up_.8s_.45s_ease_both]">
@@ -78,7 +78,7 @@ export default function Contribute() {
               
               <div className="mt-8 p-4 bg-white/50 border border-landing-border rounded-xl">
                 <p className="text-[0.7rem] leading-relaxed text-landing-ink-muted italic">
-                  "PageForge is built on the belief that AI should empower creators, not just replace them. Join us in making web design accessible to everyone."
+                  "Celerify is built on the belief that AI should empower creators, not just replace them. Join us in making web design accessible to everyone."
                 </p>
               </div>
             </div>

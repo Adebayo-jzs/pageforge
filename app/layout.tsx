@@ -25,19 +25,19 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PageForge | AI-Powered Landing Page Generator",
+  title: "Celerify | AI-Powered Landing Page Generator",
   description: "Transform your product ideas into high-conversion landing pages in seconds using Gemini AI. No coding required.",
   openGraph: {
-    title: "PageForge | AI-Powered Landing Page Generator",
+    title: "Celerify | AI-Powered Landing Page Generator",
     description: "Transform your product ideas into high-conversion landing pages in seconds using Gemini AI. No coding required.",
     url: "https://pageforge.ai",
-    siteName: "PageForge",
+    siteName: "Celerify",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PageForge AI Landing Page Generator",
+        alt: "Celerify AI Landing Page Generator",
       },
     ],
     locale: "en_US",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PageForge | AI-Powered Landing Page Generator",
+    title: "Celerify | AI-Powered Landing Page Generator",
     description: "Transform your product ideas into high-conversion landing pages in seconds using Gemini AI. No coding required.",
     images: ["/og-image.png"],
   },

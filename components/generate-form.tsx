@@ -127,7 +127,7 @@ export default function GenerateForm() {
       </div> */}
       
       <p className="mt-12 text-landing-ink-faint text-[0.85rem] font-[350]">
-        Describe your landing page idea and let PageForge build it.
+        Describe your landing page idea and let Celerify build it.
       </p>
     </div>
   );

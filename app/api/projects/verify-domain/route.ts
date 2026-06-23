@@ -9,14 +9,26 @@ const resolveCname = promisify(dns.resolveCname);
 const resolve4 = promisify(dns.resolve4);
 
 const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN ?? "celerify.vercel.app";
+const VERCEL_CNAME_TARGET = process.env.VERCEL_CNAME_TARGET ?? "cname.vercel-dns.com";
+const VERCEL_A_RECORD = process.env.VERCEL_A_RECORD ?? "76.76.21.21";
 
-/**
- * POST /api/projects/verify-domain
- * Body: { projectId: string }
- *
- * Checks if the project's customDomain has a valid CNAME → APP_DOMAIN.
- * On success, marks domainVerified: true in the DB.
- */
+function normalizeDomain(domain: string): string {
+  return domain
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/.*$/, "")
+    .replace(/\.$/, "");
+}
+
+function normalizeDnsValue(value: string): string {
+  return value.toLowerCase().replace(/\.$/, "");
+}
+
+function getExpectedCnameTargets() {
+  return Array.from(new Set([APP_DOMAIN, VERCEL_CNAME_TARGET].map(normalizeDnsValue)));
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
@@ -40,7 +52,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const domain = project.customDomain?.trim();
+    const domain = normalizeDomain(project.customDomain ?? "");
     if (!domain) {
       return NextResponse.json(
         { error: "No custom domain set on this project" },
@@ -48,46 +60,46 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Step 1: Try CNAME lookup ──────────────────────────────────────
     let verified = false;
     let foundRecord = "";
 
     try {
       const cnames = await resolveCname(domain);
-      // A CNAME chain can have multiple hops — check if any ends with APP_DOMAIN
-      const match = cnames.find(
-        (c) =>
-          c === APP_DOMAIN ||
-          c === `${APP_DOMAIN}.` ||
-          c.endsWith(`.${APP_DOMAIN}`)
-      );
+      const expectedTargets = getExpectedCnameTargets();
+      const match = cnames.find((cname) => {
+        const value = normalizeDnsValue(cname);
+        return expectedTargets.some(
+          (target) => value === target || value.endsWith(`.${target}`)
+        );
+      });
+
       if (match) {
         verified = true;
-        foundRecord = `CNAME → ${match}`;
+        foundRecord = `CNAME -> ${match}`;
       } else {
         foundRecord = `CNAME found but points to: ${cnames.join(", ")}`;
       }
     } catch {
-      // No CNAME record — fall through to A-record check
+      // Apex domains commonly use A records instead of CNAME records.
     }
 
-    // ── Step 2: Fallback — resolve our APP_DOMAIN's IP and compare ────
     if (!verified) {
       try {
         const [appIPs, domainIPs] = await Promise.all([
           resolve4(APP_DOMAIN),
           resolve4(domain),
         ]);
-        const appSet = new Set(appIPs);
+        const appSet = new Set([...appIPs, VERCEL_A_RECORD]);
         const overlap = domainIPs.filter((ip) => appSet.has(ip));
+
         if (overlap.length > 0) {
           verified = true;
-          foundRecord = `A record → ${overlap[0]}`;
+          foundRecord = `A record -> ${overlap[0]}`;
         } else {
-          foundRecord = foundRecord || `A records found but don't match PageForge IPs`;
+          foundRecord = foundRecord || "A records found but do not match this deployment";
         }
       } catch {
-        // DNS lookup completely failed
+        // DNS lookup failed or no compatible A record exists yet.
       }
     }
 
@@ -95,19 +107,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           verified: false,
-          error: foundRecord || "No DNS record found pointing to celerify.vercel.app",
-          hint: `Add a CNAME record: ${domain.startsWith("www.") ? "www" : "@"} → ${APP_DOMAIN}`,
+          error: foundRecord || `No DNS record found pointing to ${APP_DOMAIN}`,
+          hint: domain.startsWith("www.")
+            ? `Add a CNAME record: www -> ${VERCEL_CNAME_TARGET}`
+            : `Add an A record: @ -> ${VERCEL_A_RECORD}, or use a subdomain CNAME to ${VERCEL_CNAME_TARGET}`,
         },
         { status: 200 }
       );
     }
 
-    // ── Mark verified in DB ───────────────────────────────────────────
-    await Project.findByIdAndUpdate(projectId, { domainVerified: true });
+    await Project.findByIdAndUpdate(projectId, {
+      customDomain: domain,
+      domainVerified: true,
+    });
 
     return NextResponse.json({ verified: true, record: foundRecord });
   } catch (error) {
     console.error("verify-domain error:", error);
-    return NextResponse.json({ error: "Server error during verification" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Server error during verification" },
+      { status: 500 }
+    );
   }
 }

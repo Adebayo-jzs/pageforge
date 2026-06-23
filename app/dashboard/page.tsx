@@ -169,7 +169,7 @@ export default function DashboardPage() {
                 </div>
                 <button className="text-[10px] font-bold text-landing-accent uppercase tracking-widest underline">Details</button>
             </div>
-            <p className="text-[11px] font-bold mb-1">Share PageForge</p>
+            <p className="text-[11px] font-bold mb-1">Share Celerify</p>
             <p className="text-[10px] text-landing-ink-faint leading-tight">Get 100 free credits for every friend you refer.</p>
           </div> */}
           
@@ -345,7 +345,7 @@ export default function DashboardPage() {
             </button>
             <div className="mb-8">
               <h2 className="text-2xl font-instrument mb-2 text-landing-ink tracking-tight">Create New Project</h2>
-              <p className="text-sm text-landing-ink-muted">Describe what you want to build and PageForge will generate it for you.</p>
+              <p className="text-sm text-landing-ink-muted">Describe what you want to build and Celerify will generate it for you.</p>
             </div>
             <GenerateForm />
           </div>

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import dbConnect from "@/lib/mongodb";
 import Project from "@/models/Project";
-import ReactPreview from "../p/[id]/ReactPreview";
+import ReactSite from "./ReactSite";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 
 interface PageProps {
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const project = await Project.findOne({ slug: slug.toLowerCase() });
 
     if (!project) {
-      return { title: "Not Found | PageForge" };
+      return { title: "Not Found | Celerify" };
     }
 
     const title = project.title || `${project.prompt.substring(0, 50)}${project.prompt.length > 50 ? "..." : ""}`;
@@ -35,13 +35,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title,
         description,
-        siteName: "PageForge Deployed",
+        siteName: "Celerify Deployed",
         locale: "en_US",
         type: "website",
       },
     };
   } catch (error) {
-    return { title: "Error | PageForge" };
+    return { title: "Error | Celerify" };
   }
 }
 
@@ -96,7 +96,7 @@ export default async function DeployedPage({ params }: PageProps) {
                 href="/"
                 className="inline-block text-xs font-semibold text-[#6B6460] hover:text-[#1A1714] transition-colors"
               >
-                Powered by PageForge
+                Powered by Celerify
               </a>
             </div>
           </div>
@@ -113,7 +113,7 @@ export default async function DeployedPage({ params }: PageProps) {
           return acc;
         }, {});
       }
-      return <ReactPreview files={filesRecord} />;
+      return <ReactSite files={filesRecord} />;
     }
 
     let htmlToRender = project.html;
