@@ -61,7 +61,7 @@ function Hero() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#28CA41]" />
             </div>
             <div className="flex-1 bg-landing-surface rounded-md py-1 px-3 text-[0.75rem] text-landing-ink-muted border border-landing-border text-left">
-              {process.env.NEXT_PUBLIC_URL || "celerify.vercel.app"}/generate
+              celerify.vercel.app/generate
             </div>
           </div>
           <div className="p-8 bg-[linear-gradient(160deg,#fff_0%,#F9F6F1_100%)] min-h-[280px] grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5">
