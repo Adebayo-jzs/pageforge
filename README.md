@@ -40,8 +40,8 @@ Celerify is built with Next.js 16 and powered by Gemini AI. Simply describe your
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/Adebayo-jzs/pageforge.git
-   cd pageforge
+   git clone https://github.com/Adebayo-jzs/celerify.git
+   cd celerify
    ```
 
 2. Install dependencies:

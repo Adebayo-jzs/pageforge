@@ -26,18 +26,18 @@ function Hero() {
       <div className="absolute rounded-full blur-[80px] pointer-events-none w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(45,91,227,0.10)_0%,transparent_70%)] bottom-0 -right-20 animate-drift2" />
       <div className="absolute rounded-full blur-[80px] pointer-events-none w-[300px] h-[300px] bg-[radial-gradient(circle,rgba(232,82,26,0.08)_0%,transparent_70%)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-orb" />
 
-      <div className="inline-flex items-center gap-2 bg-landing-surface border border-landing-border rounded-full px-[14px] py-1.5 text-[0.78rem] font-medium text-landing-ink-muted mb-8 shadow-landing-sm animate-fade-up relative z-[1]">
+      {/* <div className="inline-flex items-center gap-2 bg-landing-surface border border-landing-border rounded-full px-[14px] py-1.5 text-[0.78rem] font-medium text-landing-ink-muted mb-8 shadow-landing-sm animate-fade-up relative z-[1]">
         <span className="w-[7px] h-[7px] rounded-full bg-landing-accent animate-blink-dot" />
         Powered by Gemini 2.5 Flash
-      </div>
+      </div> */}
 
       <h1 className="font-instrument text-[clamp(3rem,8vw,7rem)] leading-none tracking-[-0.03em] max-w-[900px] mb-6 animate-[fade-up_.8s_.15s_ease_both] relative z-[1]">
         The <span className="italic text-landing-accent">open-source</span><br />
         AI landing page generator
       </h1>
 
-      <p className="text-[clamp(1rem,2vw,1.2rem)] text-landing-ink-muted max-w-[520px] mx-auto leading-[1.7] font-[350] mb-10 animate-[fade-up_.8s_.3s_ease_both] relative z-[1]">
-        Describe your product in plain English. pageforge&apos;s AI writes the copy, picks the layout, and ships a stunning page — instantly.
+      <p className="text-[clamp(1rem,2vw,1.2rem)] text-landing-ink-muted max-w-[600px] mx-auto leading-[1.7] font-[350] mb-10 animate-[fade-up_.8s_.3s_ease_both] relative z-[1]">
+        Describe your product in plain English. celerify writes the copy, picks the layout, and ships a stunning page all in 40 seconds 
       </p>
 
       <div className="w-full flex gap-3 flex-wrap justify-center animate-[fade-up_.8s_.45s_ease_both] relative z-[1]">
@@ -61,7 +61,7 @@ function Hero() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#28CA41]" />
             </div>
             <div className="flex-1 bg-landing-surface rounded-md py-1 px-3 text-[0.75rem] text-landing-ink-muted border border-landing-border text-left">
-              {process.env.NEXT_PUBLIC_URL || "pageforge.ai"}/generate
+              {process.env.NEXT_PUBLIC_URL || "celerify.vercel.app"}/generate
             </div>
           </div>
           <div className="p-8 bg-[linear-gradient(160deg,#fff_0%,#F9F6F1_100%)] min-h-[280px] grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5">
@@ -113,7 +113,7 @@ function Hero() {
 const FEATURES_DATA = [
   { icon: Ai, title: 'AI Copywriting', text: 'Compelling headlines, benefit-driven body copy, and persuasive CTAs — all generated from a single sentence.' },
   { icon:Layout01Icon, title: 'Layout Intelligence', text: 'The AI picks the optimal section order and visual hierarchy based on your goal — capture, convert, or inform.' },
-  { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. pageforge extracts colors, tone, and style automatically.', comingSoon: true },
+  { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. celerify extracts colors, tone, and style automatically.', comingSoon: true },
   { icon: Lightning, title: 'One-click Publishing', text: `Deploy to a custom subdomain in milliseconds. Connect your own domain with two DNS records.`, comingSoon: true },
   { icon: Variable, title: 'A/B Variants', text: 'Generate 3 headline variants and let real traffic decide the winner. No guesswork, no dev time.', comingSoon: true },
   { icon: Analytics, title: 'Analytics Built-in', text: 'Conversion rate, scroll depth, and click heatmaps ship with every page. No third-party tags needed.', comingSoon: true },
@@ -187,14 +187,14 @@ function HowItWorks() {
         <div className="bg-landing-surface border border-landing-border rounded-landing-lg overflow-hidden shadow-landing-lg reveal text-left">
           <div className="p-4 px-5 bg-landing-bg border-b border-landing-border text-[0.8rem] font-semibold text-landing-ink-muted flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#28CA41]" />
-            pageforge AI · Generating your page…
+            celerify AI · Generating your page…
           </div>
           <div className="p-6 flex flex-col gap-3.5">
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tr-sm self-end bg-landing-ink text-white text-[0.85rem] leading-[1.5]">
               A SaaS tool that helps freelancers track time and send invoices. Target: designers & developers. Goal: free trial signups.
             </div>
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tl-sm self-start bg-landing-bg border border-landing-border text-[0.85rem] leading-[1.5]">
-              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">pageforge AI</div>
+              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">celerify AI</div>
               Got it! Crafting a high-converting landing page for your time-tracking & invoicing tool. Focusing on pain points: chasing payments, manual logging, scope creep.
               <div className="flex gap-1 items-center py-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-landing-ink-faint animate-bounce-gen" />
@@ -203,7 +203,7 @@ function HowItWorks() {
               </div>
             </div>
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tl-sm self-start bg-landing-bg border border-landing-border text-[0.85rem] leading-[1.5]">
-              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">pageforge AI</div>
+              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">celerify AI</div>
               ✅ Hero: &quot;Stop chasing invoices. Start chasing ideas.&quot;<br />✅ 5 feature cards generated<br />✅ Pricing section — 3 tiers<br />✅ Social proof — 3 testimonials<br />
               <strong>Your page is ready to preview →</strong>
             </div>
@@ -217,7 +217,7 @@ function HowItWorks() {
 const TESTIMONIALS_DATA = [
   { quote: '"I went from idea to a live landing page in 22 minutes. My previous record was a week. I&apos;m never going back."', author: 'Amir Khalil', role: 'Indie founder · ProductHunt #1', initials: 'AK', gradient: 'from-[#E8521A] to-[#c73e08]' },
   { quote: '"The copy it writes is genuinely better than what our content team produces. It understands positioning on a deep level."', author: 'Sara Müller', role: 'Head of Growth · Fintech startup', initials: 'SM', gradient: 'from-[#2D5BE3] to-[#1a3db3]' },
-  { quote: '"We ran an A/B test — pageforge&apos;s AI variant beat our hand-crafted page by 34% conversion. The data speaks for itself."', author: 'James Ruiz', role: 'Marketing Lead · B2B SaaS', initials: 'JR', gradient: 'from-[#1A1714] to-[#4a3f3a]' },
+  { quote: '"We ran an A/B test — celerify&apos;s AI variant beat our hand-crafted page by 34% conversion. The data speaks for itself."', author: 'James Ruiz', role: 'Marketing Lead · B2B SaaS', initials: 'JR', gradient: 'from-[#1A1714] to-[#4a3f3a]' },
 ];
 
 function Testimonials() {
@@ -230,7 +230,7 @@ function Testimonials() {
         <h2 className="font-instrument text-[clamp(2rem,4vw,3.2rem)] leading-[1.1] tracking-[-0.025em] mb-4 text-white">
           Loved by <em className="italic text-landing-accent ">builders</em><br />who ship fast
         </h2>
-        <p className="text-[1.05rem] text-white/50 max-w-[520px] leading-[1.7] font-[350]">Thousands of founders, makers, and marketers have launched with pageforge.</p>
+        <p className="text-[1.05rem] text-white/50 max-w-[520px] leading-[1.7] font-[350]">Thousands of founders, makers, and marketers have launched with celerify.</p>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-[60px]">
         {TESTIMONIALS_DATA.map((testi, i) => (

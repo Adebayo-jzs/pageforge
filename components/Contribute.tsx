@@ -29,7 +29,7 @@ export default function Contribute() {
 
             <div className="flex flex-wrap gap-4 animate-[fade-up_.8s_.45s_ease_both]">
               <a 
-                href="https://github.com/Adebayo-jzs/pageforge" 
+                href="https://github.com/Adebayo-jzs/celerify" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 bg-landing-ink text-white rounded-full px-8 py-4 text-base font-medium transition-all hover:bg-landing-accent hover:-translate-y-1 shadow-landing-md"
@@ -38,7 +38,7 @@ export default function Contribute() {
                 View on GitHub
               </a>
               <a 
-                href="https://github.com/Adebayo-jzs/pageforge/blob/main/CONTRIBUTING.md" 
+                href="https://github.com/Adebayo-jzs/celerify/blob/main/CONTRIBUTING.md" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 bg-transparent text-landing-ink border border-landing-border rounded-full px-8 py-4 text-base font-medium transition-all hover:border-landing-accent hover:text-landing-accent hover:-translate-y-1"
@@ -56,7 +56,7 @@ export default function Contribute() {
                   <HugeiconsIcon icon={GithubIcon} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-landing-ink">Adebayo-jzs/pageforge</p>
+                  <p className="text-sm font-bold text-landing-ink">Adebayo-jzs/celerify</p>
                   <p className="text-[0.65rem] text-landing-ink-muted">Main Branch </p>
                 </div>
               </div>

@@ -50,7 +50,7 @@ function PromptMockup() {
           ))}
         </div>
         <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
-          {process.env.NEXT_PUBLIC_URL || "pageforge.ai"}
+          {process.env.NEXT_PUBLIC_URL || "celerify.ai"}
         </div>
       </div>
 
@@ -122,7 +122,7 @@ function GeneratingMockup() {
           ))}
         </div>
         <div className="flex-1 bg-white rounded-md py-[3px] px-2.5 text-[0.65rem] text-landing-ink-muted border border-landing-border text-center">
-          {(process.env.NEXT_PUBLIC_URL || "pageforge.ai")}/new
+          {(process.env.NEXT_PUBLIC_URL || "celerify.ai")}/new
         </div>
       </div>
 
@@ -157,7 +157,7 @@ function GeneratingMockup() {
         {/* Progress bar */}
         <div>
           <div className="flex justify-between mb-1.5">
-            <span className="text-[0.6rem] text-landing-ink-muted">Generating with pageforge AI</span>
+            <span className="text-[0.6rem] text-landing-ink-muted">Generating with celerify AI</span>
             <span className="text-[0.6rem] text-landing-accent font-semibold">{Math.min(Math.round(progress), 100)}%</span>
           </div>
           <div className="h-[3px] bg-landing-border rounded-full overflow-hidden">
@@ -290,7 +290,7 @@ function DashboardMockup() {
           ))}
         </div>
         <div className="flex-1 bg-white rounded-md py-[2px] px-2 text-[0.6rem] text-landing-ink-muted border border-landing-border text-center">
-          {(process.env.NEXT_PUBLIC_URL || "pageforge.ai")}/dashboard
+          {(process.env.NEXT_PUBLIC_URL || "celerify.ai")}/dashboard
         </div>
       </div>
 

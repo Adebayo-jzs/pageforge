@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title,
         description,
-        url: `https://pageforge.ai/p/${id}`,
+        url: `https://celerify.ai/p/${id}`,
         siteName: "Celerify",
         images: [
           {

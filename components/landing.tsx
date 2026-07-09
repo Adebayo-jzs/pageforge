@@ -12,7 +12,7 @@ function Nav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-[5%] h-16 bg-landing-bg/85 backdrop-blur-lg border-b border-landing-border">
       <Link href="#" className="font-instrument text-[1.4rem] tracking-tight text-landing-ink no-underline">
-        pageforge<span className="text-landing-accent">.</span>
+        celerify<span className="text-landing-accent">.</span>
       </Link>
       <ul className="hidden md:flex gap-8 list-none">
         <li><Link href="#features" className="no-underline text-landing-ink-muted text-[0.9rem] font-[450] hover:text-landing-ink transition-colors duration-200">Features</Link></li>
@@ -44,7 +44,7 @@ function Hero() {
       </h1>
 
       <p className="text-[clamp(1rem,2vw,1.2rem)] text-landing-ink-muted max-w-[520px] mx-auto leading-[1.7] font-[350] mb-10 animate-[fade-up_.8s_.3s_ease_both] relative z-[1]">
-        Describe your product in plain English. pageforge&apos;s AI writes the copy, picks the layout, and ships a stunning page — instantly.
+        Describe your product in plain English. celerify&apos;s AI writes the copy, picks the layout, and ships a stunning page — instantly.
       </p>
 
       <div className="flex gap-3 flex-wrap justify-center animate-[fade-up_.8s_.45s_ease_both] relative z-[1]">
@@ -66,7 +66,7 @@ function Hero() {
               <span className="w-2.5 h-2.5 rounded-full bg-[#28CA41]" />
             </div>
             <div className="flex-1 bg-landing-surface rounded-md py-1 px-3 text-[0.75rem] text-landing-ink-muted border border-landing-border text-left">
-              app.pageforge.ai/generate
+              app.celerify.ai/generate
             </div>
           </div>
           <div className="p-8 bg-[linear-gradient(160deg,#fff_0%,#F9F6F1_100%)] min-h-[280px] grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-5">
@@ -118,7 +118,7 @@ function Hero() {
 const FEATURES_DATA = [
   { icon: Ai, title: 'AI Copywriting', text: 'Compelling headlines, benefit-driven body copy, and persuasive CTAs — all generated from a single sentence.' },
   { icon:Layout01Icon, title: 'Layout Intelligence', text: 'The AI picks the optimal section order and visual hierarchy based on your goal — capture, convert, or inform.' },
-  { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. pageforge extracts colors, tone, and style automatically.' },
+  { icon: DragDropIcon, title: 'Brand Matching', text: 'Paste your logo URL or describe your brand. celerify extracts colors, tone, and style automatically.' },
   { icon: Lightning, title: 'One-click Publishing', text: 'Deploy to a custom subdomain in milliseconds. Connect your own domain with two DNS records.' },
   { icon: Variable, title: 'A/B Variants', text: 'Generate 3 headline variants and let real traffic decide the winner. No guesswork, no dev time.' },
   { icon: Analytics, title: 'Analytics Built-in', text: 'Conversion rate, scroll depth, and click heatmaps ship with every page. No third-party tags needed.' },
@@ -185,14 +185,14 @@ function HowItWorks() {
         <div className="bg-landing-surface border border-landing-border rounded-landing-lg overflow-hidden shadow-landing-lg reveal text-left">
           <div className="p-4 px-5 bg-landing-bg border-b border-landing-border text-[0.8rem] font-semibold text-landing-ink-muted flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#28CA41]" />
-            pageforge AI · Generating your page…
+            celerify AI · Generating your page…
           </div>
           <div className="p-6 flex flex-col gap-3.5">
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tr-sm self-end bg-landing-ink text-white text-[0.85rem] leading-[1.5]">
               A SaaS tool that helps freelancers track time and send invoices. Target: designers & developers. Goal: free trial signups.
             </div>
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tl-sm self-start bg-landing-bg border border-landing-border text-[0.85rem] leading-[1.5]">
-              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">pageforge AI</div>
+              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">celerify AI</div>
               Got it! Crafting a high-converting landing page for your time-tracking & invoicing tool. Focusing on pain points: chasing payments, manual logging, scope creep.
               <div className="flex gap-1 items-center py-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-landing-ink-faint animate-bounce-gen" />
@@ -201,7 +201,7 @@ function HowItWorks() {
               </div>
             </div>
             <div className="max-w-[85%] p-3 px-4 rounded-2xl rounded-tl-sm self-start bg-landing-bg border border-landing-border text-[0.85rem] leading-[1.5]">
-              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">pageforge AI</div>
+              <div className="text-[0.7rem] font-semibold text-landing-accent mb-1">celerify AI</div>
               ✅ Hero: &quot;Stop chasing invoices. Start chasing ideas.&quot;<br />✅ 5 feature cards generated<br />✅ Pricing section — 3 tiers<br />✅ Social proof — 3 testimonials<br />
               <strong>Your page is ready to preview →</strong>
             </div>
@@ -215,7 +215,7 @@ function HowItWorks() {
 const TESTIMONIALS_DATA = [
   { quote: '"I went from idea to a live landing page in 22 minutes. My previous record was a week. I&apos;m never going back."', author: 'Amir Khalil', role: 'Indie founder · ProductHunt #1', initials: 'AK', gradient: 'from-[#E8521A] to-[#c73e08]' },
   { quote: '"The copy it writes is genuinely better than what our content team produces. It understands positioning on a deep level."', author: 'Sara Müller', role: 'Head of Growth · Fintech startup', initials: 'SM', gradient: 'from-[#2D5BE3] to-[#1a3db3]' },
-  { quote: '"We ran an A/B test — pageforge&apos;s AI variant beat our hand-crafted page by 34% conversion. The data speaks for itself."', author: 'James Ruiz', role: 'Marketing Lead · B2B SaaS', initials: 'JR', gradient: 'from-[#1A1714] to-[#4a3f3a]' },
+  { quote: '"We ran an A/B test — celerify&apos;s AI variant beat our hand-crafted page by 34% conversion. The data speaks for itself."', author: 'James Ruiz', role: 'Marketing Lead · B2B SaaS', initials: 'JR', gradient: 'from-[#1A1714] to-[#4a3f3a]' },
 ];
 
 function Testimonials() {
@@ -228,7 +228,7 @@ function Testimonials() {
         <h2 className="font-instrument text-[clamp(2rem,4vw,3.2rem)] leading-[1.1] tracking-[-0.025em] mb-4 text-white">
           Loved by <em className="italic text-landing-accent ">builders</em><br />who ship fast
         </h2>
-        <p className="text-[1.05rem] text-white/50 max-w-[520px] leading-[1.7] font-[350]">Thousands of founders, makers, and marketers have launched with pageforge.</p>
+        <p className="text-[1.05rem] text-white/50 max-w-[520px] leading-[1.7] font-[350]">Thousands of founders, makers, and marketers have launched with celerify.</p>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-5 mt-[60px]">
         {TESTIMONIALS_DATA.map((testi, i) => (
@@ -262,7 +262,7 @@ const PRICING_DATA = [
     btn: 'Get started', btnClass: 'bg-transparent text-landing-ink border-[1.5px] border-landing-border hover:bg-landing-ink hover:text-white',
     features: [
       { check: true, text: '3 pages' }, { check: true, text: 'AI copywriting' },
-      { check: true, text: 'pageforge.ai subdomain' }, { check: true, text: 'Basic analytics' },
+      { check: true, text: 'celerify.ai subdomain' }, { check: true, text: 'Basic analytics' },
       { check: false, text: 'Custom domain' }, { check: false, text: 'A/B testing' },
     ]
   },
@@ -336,7 +336,7 @@ function FinalCTA() {
         <h2 className="font-instrument text-[clamp(2rem,4vw,3rem)] text-white tracking-[-0.025em] leading-[1.15] mb-4 relative z-[1]">
           Your page won&apos;t build<br />itself. <em className="italic text-landing-accent ">But we will.</em>
         </h2>
-        <p className="text-white/50 text-base leading-[1.7] mb-9 font-[350] relative z-[1]">Join 12,000+ builders who launched faster with pageforge. No design skills needed — just a great idea.</p>
+        <p className="text-white/50 text-base leading-[1.7] mb-9 font-[350] relative z-[1]">Join 12,000+ builders who launched faster with celerify. No design skills needed — just a great idea.</p>
         <div className="flex gap-3 justify-center flex-wrap relative z-[1]">
           <button className="bg-landing-accent text-white border-none rounded-full px-8 py-[15px] text-base font-medium cursor-pointer font-inherit shadow-[0_4px_20px_rgba(232,82,26,0.4)] transition-all duration-250 hover:-translate-y-[2px] hover:shadow-[0_8px_28px_rgba(232,82,26,0.55)]">
             Build my page free →
@@ -355,9 +355,9 @@ function Footer() {
   return (
     <footer className="bg-landing-ink p-8 px-[5%] flex items-center justify-between flex-wrap gap-3 border-t border-white/10">
       <Link href="#" className="font-instrument text-white/60 text-[1.1rem] no-underline">
-        pageforge<span className="text-landing-accent">.</span>
+        celerify<span className="text-landing-accent">.</span>
       </Link>
-      <p className="text-[0.8rem] text-white/20">© 2026 pageforge Inc. All rights reserved.</p>
+      <p className="text-[0.8rem] text-white/20">© 2026 celerify Inc. All rights reserved.</p>
     </footer>
   );
 }

@@ -115,10 +115,10 @@ export default function PolicyPage() {
               If you have any questions about these policies or our data practices, please contact us at:
             </p>
             <a 
-              href="mailto:legal@pageforge.ai" 
+              href="mailto:legal@celerify.ai" 
               className="text-4xl font-instrument text-landing-accent hover:text-landing-accent/80 transition-colors tracking-tight italic"
             >
-              legal@pageforge.ai
+              legal@celerify.ai
             </a>
           </section>
         </div>

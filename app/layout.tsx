@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Celerify | AI-Powered Landing Page Generator",
     description: "Transform your product ideas into high-conversion landing pages in seconds using Gemini AI. No coding required.",
-    url: "https://pageforge.ai",
+    url: "https://celerify.ai",
     siteName: "Celerify",
     images: [
       {

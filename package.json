@@ -1,12 +1,12 @@
 {
-  "name": "pageforge",
+  "name": "celerify",
   "version": "0.1.0",
   "description": "AI-powered landing page generator built with Next.js and Gemini",
   "author": "Adebayo-jzs",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Adebayo-jzs/pageforge.git"
+    "url": "https://github.com/Adebayo-jzs/celerify.git"
   },
   "keywords": [
     "ai",

@@ -3,7 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Project from '@/models/Project';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://pageforge.ai";
+  const baseUrl = process.env.NEXT_PUBLIC_URL || "https://celerify.ai";
 
   // Static routes
   const staticRoutes = [

@@ -52,7 +52,7 @@ export default function Navbar() {
     { label: "how it works", href: "/how-it-works" },
     { label: "privacy policy", href: "/policy" },
     { label: "pricing", href: "/pricing" },
-    { label: "github", href: "https://github.com/Adebayo-jzs/pageforge", external: true },
+    { label: "github", href: "https://github.com/Adebayo-jzs/celerify", external: true },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -75,7 +75,7 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-[5%] h-16 bg-landing-bg/85 backdrop-blur-lg border-b border-landing-border">
       <Link href="/" className="font-instrument text-[1.4rem] tracking-tight text-landing-ink no-underline">
-        pageforge<span className="text-landing-accent">.</span>
+        celerify<span className="text-landing-accent">.</span>
       </Link>
        
       <div className="hidden md:flex items-center gap-1 ml-2">

@@ -5,7 +5,7 @@ First off, thank you for considering contributing to Celerify! It's people like 
 ## How Can I Contribute?
 
 ### Reporting Bugs
-*   Check the [Issues](https://github.com/Adebayo-jzs/pageforge/issues) to see if the bug has already been reported.
+*   Check the [Issues](https://github.com/Adebayo-jzs/celerify/issues) to see if the bug has already been reported.
 *   If not, open a new issue. Clearly describe the problem and include steps to reproduce it.
 
 ### Suggesting Enhancements
